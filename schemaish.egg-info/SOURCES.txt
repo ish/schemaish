@@ -1,0 +1,9 @@
+setup.cfg
+setup.py
+schemaish/__init__.py
+schemaish.egg-info/PKG-INFO
+schemaish.egg-info/SOURCES.txt
+schemaish.egg-info/dependency_links.txt
+schemaish.egg-info/entry_points.txt
+schemaish.egg-info/not-zip-safe
+schemaish.egg-info/top_level.txt
