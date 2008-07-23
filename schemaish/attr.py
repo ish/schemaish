@@ -148,7 +148,7 @@ class Tuple(Attribute):
 
 class _StructureMeta(type):
 
-    def __new__(cls, name, bases, clsattrs):
+    def __init__(cls, name, bases, clsattrs):
         attrs = []
         for (name, value) in clsattrs.items():
             if isinstance(value, Attribute):
@@ -157,8 +157,7 @@ class _StructureMeta(type):
         attrs = [(a[1]._meta_order, a) for a in attrs]
         attrs.sort()
         attrs = [i[1] for i in attrs]
-        clsattrs["attrs"] = attrs
-        return type.__new__(cls, name, bases, clsattrs)
+        cls.attrs = attrs
 
 
 class Structure(Attribute):
