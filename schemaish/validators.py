@@ -1,5 +1,5 @@
 """
-Module of validators, also imported into the package.
+Module of validators, also imported into the main package.
 
 Most of the validators are actually imported directly from formencode. However,
 some of the formencode validators are just silly ;-), so we leave a few
