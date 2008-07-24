@@ -1,5 +1,5 @@
 """
-Schema attribute types.
+Schema attribute types, also imported into the package.
 """
 
 
