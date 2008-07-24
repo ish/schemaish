@@ -7,11 +7,16 @@ formencode validators out and add a few of our own.
 """
 
 
-__all__ = ['All', 'Any', 'CIDR', 'Email', 'Empty', 'MACAddress', 'NotEmpty',
-        'OneOf', 'PlainText', 'Regex', 'URL', 'Wrapper']
+__all__ = [
+        # Re-export FormEncode's validators.
+        'All', 'Any', 'CIDR', 'DateValidator', 'Email', 'Empty', 'MACAddress',
+        'MinLength', 'MaxLength', 'NotEmpty', 'OneOf', 'PlainText', 'Regex',
+        'URL', 'Wrapper'
+        ]
 
 
 from formencode.compound import All, Any
-from formencode.validators import CIDR, Email, Empty, MACAddress, NotEmpty, \
-        OneOf, PlainText, Regex, URL, Wrapper
+from formencode.validators import CIDR, DateValidator, Email, Empty, \
+        MinLength, MaxLength, MACAddress, NotEmpty, OneOf, PlainText, Regex, \
+        URL, Wrapper
 
