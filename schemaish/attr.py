@@ -3,7 +3,7 @@ Schema attribute types, also imported into the main package.
 """
 
 
-__all__ = ["String", "Integer", "Float", "Decimal", "Date", "Time", "Sequence",
+__all__ = ["String", "Integer", "Float", "Decimal", "Date", "Time", "Boolean", "Sequence",
         "Tuple", "Structure"]
 
 
@@ -91,6 +91,12 @@ class Time(Attribute):
 class DateTime(Attribute):
     """
     A datetime.datetime instance.
+    """
+    pass
+
+class Boolean(Attribute):
+    """
+    A Python Boolean instance.
     """
     pass
 
