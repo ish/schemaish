@@ -24,7 +24,7 @@ class Attribute(object):
     @ivar validator: Optional FormEncode validator.
     """
 
-    def __init__(self, title, description=None, validator=None):
+    def __init__(self, **k):
         """
         Create a new attribute.
 
@@ -32,9 +32,9 @@ class Attribute(object):
         @keyword description: Optional description.
         @keyword validator: Optional FormEncode validator.
         """
-        self.title = title
-        self.description = description
-        self.validator = validator
+        self.title = k.pop('title', None)
+        self.description = k.pop('description', None)
+        self.validator = k.pop('validator', None)
         self._meta_order = _meta_order.next()
 
     def validate(self, value):
@@ -108,14 +108,13 @@ class Sequence(Attribute):
     @ivar attr: Attribute type of items in the sequence.
     """
 
-    def __init__(self, *a, **k):
+    def __init__(self, attr, **k):
         """
         Create a new Sequence instance.
 
         @keyword attr: Attribute type of items in the sequence.
         """
-        attr = k.pop("attr")
-        super(Sequence, self).__init__(*a, **k)
+        super(Sequence, self).__init__(**k)
         self.attr = attr
 
     def validate(self, value):
@@ -134,14 +133,13 @@ class Tuple(Attribute):
     @ivar attrs: List of Attributes that define the items in the tuple.
     """
 
-    def __init__(self, *a, **k):
+    def __init__(self, attrs, **k):
         """
         Create a Tuple instance.
 
         @param attrs: List of Attributes that define the items in the tuple.
         """
-        attrs = k.pop("attrs")
-        super(Tuple, self).__init__(*a, **k)
+        super(Tuple, self).__init__(**k)
         self.attrs = attrs
 
     def validate(self, value):
@@ -192,15 +190,14 @@ class Structure(Attribute):
 
     __metaclass__ = _StructureMeta
 
-    def __init__(self, *a, **k):
+    def __init__(self, attrs=None, **k):
         """
         Create a new structure.
 
         @params attrs: List of (name, attribute) tuples defining the name and
             type of the structure's attributes.
         """
-        attrs = k.pop('attrs', None)
-        super(Structure, self).__init__(*a, **k)
+        super(Structure, self).__init__(**k)
         if attrs is not None:
             self.attrs = attrs
 
@@ -231,5 +228,4 @@ class Structure(Attribute):
         """
         value = dict((name, attr.validate(value[name])) for (name, attr) in self.attrs)
         return super(Structure, self).validate(value)
-
 
