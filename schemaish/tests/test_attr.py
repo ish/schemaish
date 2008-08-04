@@ -142,6 +142,21 @@ class TestStructure(unittest.TestCase):
         self.assertEquals(s.validate({"one": "One", "two": "Two"}), {"one": "One", "two": "Two"})
         self.assertRaises(Invalid, s.validate, {"one": "", "two": "Two"})
 
+    def test_extend_meta(self):
+
+        class TestStructure(Structure):
+            one = String(validator=NotEmpty)
+            two = String()
+
+        s1 = TestStructure()
+        s2 = TestStructure()
+        self.assertEquals(len(s1.attrs), 2)
+        self.assertEquals(len(s2.attrs), 2)
+
+        s2.add('three', String())
+        self.assertEquals(len(s1.attrs), 2)
+        self.assertEquals(len(s2.attrs), 3)
+
 
 if __name__ == "__main__":
     unittest.main()

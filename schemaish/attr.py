@@ -198,8 +198,14 @@ class Structure(Attribute):
             type of the structure's attributes.
         """
         super(Structure, self).__init__(**k)
+        # If attrs has been passed as an arg then use that as the attrs of the
+        # structure. Otherwise use the class's attrs, making a copy to ensure
+        # that any added attrs to the instance do not get appended to te
+        # class's attrs.
         if attrs is not None:
             self.attrs = attrs
+        else:
+            self.attrs = list(self.attrs)
 
     def add(self, name, attr):
         """
