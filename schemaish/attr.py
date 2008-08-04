@@ -122,7 +122,8 @@ class Sequence(Attribute):
         Validate all items in the sequence and then validate the Sequence
         itself.
         """
-        value = [self.attr.validate(item) for item in value]
+        if value:
+            value = [self.attr.validate(item) for item in value]
         return super(Sequence, self).validate(value)
 
 
@@ -146,7 +147,8 @@ class Tuple(Attribute):
         """
         Validate the tuple's items and the tuple itself.
         """
-        value = tuple(attr.validate(item) for (attr, item) in zip(self.attrs, value))
+        if value:
+            value = tuple(attr.validate(item) for (attr, item) in zip(self.attrs, value))
         return super(Tuple, self).validate(value)
 
 

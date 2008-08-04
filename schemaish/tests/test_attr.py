@@ -50,6 +50,7 @@ class TestSequence(unittest.TestCase):
 
     def test_validate(self):
         s = Sequence(String())
+        self.assertEquals(s.validate(None), None)
         self.assertEquals(s.validate([]), [])
         self.assertEquals(s.validate(["one", "two"]), ["one", "two"])
         s = Sequence(attr=String(), validator=NotEmpty)
@@ -64,6 +65,7 @@ class TestTuple(unittest.TestCase):
 
     def test_validate(self):
         t = Tuple([String(), String()])
+        self.assertEquals(t.validate(None), None)
         self.assertEquals(t.validate(tuple()), tuple())
         self.assertEquals(t.validate(("one", "two")), ("one", "two"))
         t = Tuple([String(), String()], validator=NotEmpty)
