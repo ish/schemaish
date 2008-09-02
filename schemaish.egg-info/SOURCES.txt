@@ -1,6 +1,8 @@
 setup.cfg
 setup.py
 schemaish/__init__.py
+schemaish/attr.py
+schemaish/validators.py
 schemaish.egg-info/PKG-INFO
 schemaish.egg-info/SOURCES.txt
 schemaish.egg-info/dependency_links.txt
