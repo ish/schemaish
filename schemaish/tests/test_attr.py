@@ -3,7 +3,7 @@ import unittest
 
 from schemaish import *
 
-
+#import wingdbstub
 class TestCore(unittest.TestCase):
 
     def test_blank(self):
@@ -158,6 +158,23 @@ class TestStructure(unittest.TestCase):
         s2.add('three', String())
         self.assertEquals(len(s1.attrs), 2)
         self.assertEquals(len(s2.attrs), 3)
+
+        
+class TestRecursiveValidate(unittest.TestCase):
+
+    def test_validate_sequence(self):
+        s = Sequence(String(validator=NotEmpty))
+        try:
+            s.validate( ["",""] )
+        except Invalid, e:
+            print e.error_dict
+            
+    def test_validate_structure(self):
+        s = Structure([('list',Sequence(String(validator=NotEmpty)))])
+        try:
+            s.validate( {'list':["",""]} )
+        except Invalid, e:
+            print e.error_dict
 
 
 if __name__ == "__main__":

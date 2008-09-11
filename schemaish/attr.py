@@ -8,7 +8,7 @@ __all__ = ["String", "Integer", "Float", "Decimal", "Date", "Time", "Boolean", "
 
 
 import itertools
-
+from formencode import Invalid
 
 # Internal counter used to ensure the order of a meta structure's attributes is
 # maintained.
@@ -122,9 +122,26 @@ class Sequence(Attribute):
         Validate all items in the sequence and then validate the Sequence
         itself.
         """
-        if value:
-            value = [self.attr.validate(item) for item in value]
-        return super(Sequence, self).validate(value)
+        errors = {}
+        if value is not None:
+            for n,item in enumerate(value):
+                try:
+                    item = self.attr.validate(item)
+                except Invalid, e:
+                    if e.error_dict is not None:
+                        for k, v in e.error_dict.items():
+                            errors['%s.%s'%(str(n),k)] = v
+                    errors[str(n)] = e
+        try:
+            super(Sequence, self).validate(value)
+        except Invalid, e:
+            errors[''] = e
+            
+        if errors.keys():
+            raise Invalid(e.message, value, None, error_dict = errors)
+
+        return value
+        
 
 
 class Tuple(Attribute):
@@ -230,10 +247,37 @@ class Structure(Attribute):
                 return attr
         raise KeyError(name)
 
+    #def validate(self, value):
+        #"""
+        #Validate the structure's attributes and the structure itself.
+        #"""
+        #value = dict((name, attr.validate(value[name])) for (name, attr) in self.attrs)
+        #return super(Structure, self).validate(value)
+
     def validate(self, value):
         """
-        Validate the structure's attributes and the structure itself.
+        Validate all items in the sequence and then validate the Sequence
+        itself.
         """
-        value = dict((name, attr.validate(value[name])) for (name, attr) in self.attrs)
-        return super(Structure, self).validate(value)
+        errors = {}
+        data = {}
+        if value is not None:
+            for (name, attr) in self.attrs:
+                try:
+                    data[name] = attr.validate(value[name])
+                except Invalid, e:
+                    if e.error_dict is not None:
+                        for k, v in e.error_dict.items():
+                            errors['%s.%s'%(name,k)] = v
+                    errors[name] = e
+                        
+        try:
+            super(Structure, self).validate(value)
+        except Invalid, e:
+            errors[''] = e
+            
+        if errors.keys():
+            raise Invalid(e.message, value, None, error_dict = errors)
 
+        return data
+        
