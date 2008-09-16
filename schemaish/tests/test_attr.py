@@ -3,7 +3,6 @@ import unittest
 
 from schemaish import *
 
-#import wingdbstub
 class TestCore(unittest.TestCase):
 
     def test_blank(self):
