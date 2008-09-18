@@ -280,4 +280,4 @@ class Structure(Attribute):
             raise Invalid(e.message, value, None, error_dict = errors)
 
         return data
-        
+
