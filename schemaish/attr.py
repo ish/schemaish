@@ -42,8 +42,8 @@ class Attribute(object):
         Validate the value if a validator has been provided.
         """
         if self.validator is None:
-            return value
-        return self.validator.to_python(value)
+            return
+        self.validator.to_python(value)
 
 
 class String(Attribute):
@@ -124,23 +124,22 @@ class Sequence(Attribute):
         """
         errors = {}
         if value is not None:
-            for n,item in enumerate(value):
+            for n, item in enumerate(value):
                 try:
-                    item = self.attr.validate(item)
+                    self.attr.validate(item)
                 except Invalid, e:
                     if e.error_dict is not None:
                         for k, v in e.error_dict.items():
                             errors['%s.%s'%(str(n),k)] = v
                     errors[str(n)] = e
+
         try:
             super(Sequence, self).validate(value)
         except Invalid, e:
             errors[''] = e
             
-        if errors.keys():
+        if errors:
             raise Invalid(e.message, value, None, error_dict = errors)
-
-        return value
         
 
 
@@ -165,8 +164,9 @@ class Tuple(Attribute):
         Validate the tuple's items and the tuple itself.
         """
         if value:
-            value = tuple(attr.validate(item) for (attr, item) in zip(self.attrs, value))
-        return super(Tuple, self).validate(value)
+            for attr, item in zip(self.attrs, value):
+                attr.validate(item)
+        super(Tuple, self).validate(value)
 
 
 class _StructureMeta(type):
@@ -247,24 +247,16 @@ class Structure(Attribute):
                 return attr
         raise KeyError(name)
 
-    #def validate(self, value):
-        #"""
-        #Validate the structure's attributes and the structure itself.
-        #"""
-        #value = dict((name, attr.validate(value[name])) for (name, attr) in self.attrs)
-        #return super(Structure, self).validate(value)
-
     def validate(self, value):
         """
         Validate all items in the sequence and then validate the Sequence
         itself.
         """
         errors = {}
-        data = {}
         if value is not None:
             for (name, attr) in self.attrs:
                 try:
-                    data[name] = attr.validate(value.get(name,None))
+                    attr.validate(value.get(name,None))
                 except Invalid, e:
                     if e.error_dict is not None:
                         for k, v in e.error_dict.items():
@@ -278,6 +270,4 @@ class Structure(Attribute):
             
         if errors.keys():
             raise Invalid(e.message, value, None, error_dict = errors)
-
-        return data
 

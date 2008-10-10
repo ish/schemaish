@@ -3,6 +3,7 @@ import unittest
 
 from schemaish import *
 
+
 class TestCore(unittest.TestCase):
 
     def test_blank(self):
@@ -29,8 +30,8 @@ class TestCore(unittest.TestCase):
 class TestString(unittest.TestCase):
 
     def test_validate(self):
-        self.assertEquals(String().validate(""), "")
-        self.assertEquals(String().validate(None), None)
+        String().validate("")
+        String().validate(None)
         self.assertRaises(Invalid, String(validator=NotEmpty()).validate, None)
         self.assertRaises(Invalid, String(validator=NotEmpty()).validate, "")
 
@@ -39,9 +40,9 @@ class TestDate(unittest.TestCase):
 
     def test_validate(self):
         today = datetime.date.today()
-        self.assertEquals(Date().validate(None), None)
-        self.assertEquals(Date().validate(today), today)
-        self.assertEquals(Date(validator=NotEmpty).validate(today), today)
+        Date().validate(None)
+        Date().validate(today)
+        Date(validator=NotEmpty).validate(today)
         self.assertRaises(Invalid, Date(validator=NotEmpty).validate, None)
 
 
@@ -49,14 +50,14 @@ class TestSequence(unittest.TestCase):
 
     def test_validate(self):
         s = Sequence(String())
-        self.assertEquals(s.validate(None), None)
-        self.assertEquals(s.validate([]), [])
-        self.assertEquals(s.validate(["one", "two"]), ["one", "two"])
+        s.validate(None)
+        s.validate([])
+        s.validate(["one", "two"])
         s = Sequence(attr=String(), validator=NotEmpty)
-        self.assertEquals(s.validate(["one"]), ["one"])
+        s.validate(["one"])
         self.assertRaises(Invalid, s.validate, [])
         s = Sequence(String(validator=NotEmpty))
-        self.assertEquals(s.validate([]), [])
+        s.validate([])
         self.assertRaises(Invalid, s.validate, [""])
 
 
@@ -64,15 +65,15 @@ class TestTuple(unittest.TestCase):
 
     def test_validate(self):
         t = Tuple([String(), String()])
-        self.assertEquals(t.validate(None), None)
-        self.assertEquals(t.validate(tuple()), tuple())
-        self.assertEquals(t.validate(("one", "two")), ("one", "two"))
+        t.validate(None)
+        t.validate(tuple())
+        t.validate(("one", "two"))
         t = Tuple([String(), String()], validator=NotEmpty)
-        self.assertEquals(t.validate(("one",)), ("one",))
+        t.validate(("one",))
         self.assertRaises(Invalid, t.validate, tuple())
         t = Tuple([String(validator=NotEmpty), String()])
-        self.assertEquals(t.validate(("one", "two")), ("one", "two"))
-        self.assertEquals(t.validate(("one", "")), ("one", ""))
+        t.validate(("one", "two"))
+        t.validate(("one", ""))
         self.assertRaises(Invalid, t.validate, ("", ""))
 
 
@@ -80,16 +81,16 @@ class TestStructure(unittest.TestCase):
 
     def test_validate_empty(self):
         s = Structure([])
-        self.assertEquals(s.validate({}), {})
-        self.assertEquals(s.validate({"notanattr": "bleurgh!"}), {})
+        s.validate({})
+        s.validate({"notanattr": "bleurgh!"})
 
     def test_validate_extra(self):
         s = Structure([("one", String())])
-        self.assertEquals(s.validate({"one": "un", "notanattr": "Hah!"}), {"one": "un"})
+        s.validate({"one": "un", "notanattr": "Hah!"})
 
     def test_validate_attrs(self):
         s = Structure([("one", String()), ("two", String())])
-        self.assertEquals(s.validate({"one": "un", "two": "deux"}), {"one": "un", "two": "deux"})
+        s.validate({"one": "un", "two": "deux"})
         self.assertRaises(KeyError, s.validate, {})
 
     def test_validate_nested(self):
@@ -97,7 +98,7 @@ class TestStructure(unittest.TestCase):
         one = Structure([("a", String()), ("b", String())])
         two = Structure([("a", String()), ("b", String())])
         s = Structure([("one", one), ("two", two)])
-        self.assertEquals(s.validate({"one": {"a": "1a", "b": "1b"}, "two": {"a": "2a", "b": "2b"}}), {"one": {"a": "1a", "b": "1b"}, "two": {"a": "2a", "b": "2b"}})
+        s.validate({"one": {"a": "1a", "b": "1b"}, "two": {"a": "2a", "b": "2b"}})
 
         s = Structure([
             ("one", Structure([
@@ -105,7 +106,7 @@ class TestStructure(unittest.TestCase):
                 ("b", String()),
                 ])),
             ])
-        self.assertEquals(s.validate({"one": {"a": "1a", "b": "1b"}}), {"one": {"a": "1a", "b": "1b"}})
+        s.validate({"one": {"a": "1a", "b": "1b"}})
         self.assertRaises(Invalid, s.validate, {"one": {"a": "", "b": "1b"}})
         self.assertRaises(Invalid, s.validate, {"one": {"a": None, "b": "1b"}})
 
@@ -113,7 +114,7 @@ class TestStructure(unittest.TestCase):
         s = Structure()
         s.add("one", String())
         s.add("two", String())
-        self.assertEquals(s.validate({"one": "un", "two": "deux"}), {"one": "un", "two": "deux"})
+        s.validate({"one": "un", "two": "deux"})
 
     def test_get(self):
         one = String()
@@ -140,7 +141,7 @@ class TestStructure(unittest.TestCase):
             two = String()
 
         s = TestStructure()
-        self.assertEquals(s.validate({"one": "One", "two": "Two"}), {"one": "One", "two": "Two"})
+        s.validate({"one": "One", "two": "Two"})
         self.assertRaises(Invalid, s.validate, {"one": "", "two": "Two"})
 
     def test_extend_meta(self):
