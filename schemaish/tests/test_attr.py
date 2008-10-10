@@ -69,12 +69,15 @@ class TestTuple(unittest.TestCase):
         t.validate(tuple())
         t.validate(("one", "two"))
         t = Tuple([String(), String()], validator=NotEmpty)
-        t.validate(("one",))
+        t.validate(("one", "two"))
         self.assertRaises(Invalid, t.validate, tuple())
         t = Tuple([String(validator=NotEmpty), String()])
         t.validate(("one", "two"))
         t.validate(("one", ""))
         self.assertRaises(Invalid, t.validate, ("", ""))
+
+    def test_num_items(self):
+        self.assertRaises(Invalid, Tuple([String(), String()]).validate, ("one",))
 
 
 class TestStructure(unittest.TestCase):

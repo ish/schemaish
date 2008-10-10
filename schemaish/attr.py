@@ -164,6 +164,8 @@ class Tuple(Attribute):
         Validate the tuple's items and the tuple itself.
         """
         if value:
+            if len(self.attrs) != len(value):
+                raise Invalid("Incorrect size", value, None)
             for attr, item in zip(self.attrs, value):
                 attr.validate(item)
         super(Tuple, self).validate(value)
