@@ -258,7 +258,7 @@ class Structure(Attribute):
         if value is not None:
             for (name, attr) in self.attrs:
                 try:
-                    attr.validate(value.get(name,None))
+                    attr.validate(value.get(name))
                 except Invalid, e:
                     if e.error_dict is not None:
                         for k, v in e.error_dict.items():

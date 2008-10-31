@@ -94,7 +94,15 @@ class TestStructure(unittest.TestCase):
     def test_validate_attrs(self):
         s = Structure([("one", String()), ("two", String())])
         s.validate({"one": "un", "two": "deux"})
-        self.assertRaises(KeyError, s.validate, {})
+
+    def test_validate_missing_attrs(self):
+        """
+        Check that completely missing data validates as long as nothing is required.
+        """
+        s = Structure([("one", String()), ("two", String())])
+        s.validate({})
+        s = Structure([("one", String(validator=NotEmpty())), ("two", String())])
+        self.assertRaises(Invalid, s.validate, {})
 
     def test_validate_nested(self):
 
