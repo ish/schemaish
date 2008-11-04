@@ -56,9 +56,17 @@ class TestSequence(unittest.TestCase):
         s = Sequence(attr=String(), validator=NotEmpty)
         s.validate(["one"])
         self.assertRaises(Invalid, s.validate, [])
+
+    def test_nested_validation(self):
         s = Sequence(String(validator=NotEmpty))
         s.validate([])
         self.assertRaises(Invalid, s.validate, [""])
+        s = Sequence(attr=String(validator=NotEmpty))
+        s.validate(['one'])
+        self.assertRaises(Invalid, s.validate, [''])
+        s = Sequence(Structure([('str', String(validator=NotEmpty))]))
+        s.validate([{'str': 'one'}])
+        self.assertRaises(Invalid, s.validate, [{}])
 
 
 class TestTuple(unittest.TestCase):
