@@ -4,7 +4,7 @@ Schema attribute types, also imported into the main package.
 
 
 __all__ = ["String", "Integer", "Float", "Decimal", "Date", "Time", "Boolean", "Sequence",
-        "Tuple", "Structure"]
+        "Tuple", "Structure", "DateTime"]
 
 
 import itertools
