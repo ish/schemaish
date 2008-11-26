@@ -3,8 +3,8 @@ Schema attribute types, also imported into the main package.
 """
 
 
-__all__ = ["String", "Integer", "Float", "Decimal", "Date", "Time", "Boolean", "Sequence",
-        "Tuple", "Structure"]
+__all__ = ['String', 'Integer', 'Float', 'Decimal', 'Date', 'Time', 'Boolean', 'Sequence',
+        'Tuple', 'Structure', 'DateTime','File']
 
 
 import itertools
@@ -273,3 +273,10 @@ class Structure(Attribute):
         if errors.keys():
             raise Invalid(e.message, value, None, error_dict = errors)
 
+
+
+class File(Attribute):
+    """
+    A File Object
+    """
+    pass
