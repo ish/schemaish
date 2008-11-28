@@ -2,15 +2,18 @@ import datetime
 import unittest
 
 from schemaish import *
+from schemaish.attr import Attribute
 
 
 class TestCore(unittest.TestCase):
 
-    def test_blank(self):
-        a = String()
-        self.assertTrue(a.title is None)
-        self.assertTrue(a.description is None)
-        self.assertTrue(a.validator is None)
+    def test_defaults(self):
+        attr = Attribute()
+        assert not attr.title
+        assert not attr.description
+        assert not attr.description
+        assert not attr.validator
+        assert isinstance(attr.validator, Always)
 
     def test_positional(self):
         self.assertRaises(TypeError, String, "a")
@@ -25,6 +28,35 @@ class TestCore(unittest.TestCase):
         a = String()
         b = String()
         self.assertTrue(a._meta_order < b._meta_order)
+
+    def test_subclass(self):
+        class Something(Attribute):
+            title = 'Title'
+            description = 'Description'
+            validator = NotEmpty()
+        attr = Something()
+        assert attr.title is Something.title
+        assert attr.description is Something.description
+        assert attr.validator is Something.validator
+        attr = Something(title=None, description=None, validator=None)
+        assert attr.title is None
+        assert attr.description is None
+        assert attr.validator is None
+
+    def test_extend_default_validator(self):
+        """
+        Check that the default validator can be extended without testing that
+        the default validator is anything useful..
+
+        # XXX: There's no point in testing Any because it's a silly way to
+        # extend the default.
+        """
+        attr = String(validator=All(String.validator, NotEmpty()))
+        attr.validate('foo')
+        self.assertRaises(Invalid, attr.validate, '')
+        attr = String(validator=(NotEmpty() if not String.validator else All(String.validator, NotEmpty())))
+        attr.validate('foo')
+        self.assertRaises(Invalid, attr.validate, '')
 
 
 class TestString(unittest.TestCase):
@@ -68,6 +100,14 @@ class TestSequence(unittest.TestCase):
         s.validate([{'str': 'one'}])
         self.assertRaises(Invalid, s.validate, [{}])
 
+    def test_subclass(self):
+        class StringSequence(Sequence):
+            attr = String()
+        class DateSequence(Sequence):
+            attr = Date()
+        assert isinstance(StringSequence().attr, String)
+        assert isinstance(DateSequence().attr, Date)
+
 
 class TestTuple(unittest.TestCase):
 
@@ -86,6 +126,21 @@ class TestTuple(unittest.TestCase):
 
     def test_num_items(self):
         self.assertRaises(Invalid, Tuple([String(), String()]).validate, ("one",))
+
+    def test_subclass(self):
+        class Tuple1(Tuple):
+            attrs = [String(), String(), String()]
+        class Tuple2(Tuple):
+            attrs = [String(), Date()]
+        t1 = Tuple1()
+        assert len(t1.attrs) == 3
+        assert isinstance(t1.attrs[0], String)
+        assert isinstance(t1.attrs[1], String)
+        assert isinstance(t1.attrs[2], String)
+        t2 = Tuple2()
+        assert len(t2.attrs) == 2
+        assert isinstance(t2.attrs[0], String)
+        assert isinstance(t2.attrs[1], Date)
 
 
 class TestStructure(unittest.TestCase):

@@ -10,9 +10,15 @@ __all__ = ['String', 'Integer', 'Float', 'Decimal', 'Date', 'Time', 'Boolean', '
 import itertools
 from formencode import Invalid
 
+from schemaish import validators
+
+
 # Internal counter used to ensure the order of a meta structure's attributes is
 # maintained.
 _meta_order = itertools.count()
+
+
+_MISSING = object()
 
 
 class Attribute(object):
@@ -24,6 +30,10 @@ class Attribute(object):
     @ivar validator: Optional FormEncode validator.
     """
 
+    title = None
+    description = None
+    validator = validators.Always()
+
     def __init__(self, **k):
         """
         Create a new attribute.
@@ -32,16 +42,22 @@ class Attribute(object):
         @keyword description: Optional description.
         @keyword validator: Optional FormEncode validator.
         """
-        self.title = k.pop('title', None)
-        self.description = k.pop('description', None)
-        self.validator = k.pop('validator', None)
         self._meta_order = _meta_order.next()
+        title = k.pop('title', _MISSING)
+        if title is not _MISSING:
+            self.title = title
+        description = k.pop('description', _MISSING)
+        if description is not _MISSING:
+            self.description = description
+        validator = k.pop('validator', _MISSING)
+        if validator is not _MISSING:
+            self.validator = validator
 
     def validate(self, value):
         """
         Validate the value if a validator has been provided.
         """
-        if self.validator is None:
+        if not self.validator:
             return
         self.validator.to_python(value)
 
@@ -94,6 +110,7 @@ class DateTime(Attribute):
     """
     pass
 
+
 class Boolean(Attribute):
     """
     A Python Boolean instance.
@@ -108,14 +125,17 @@ class Sequence(Attribute):
     @ivar attr: Attribute type of items in the sequence.
     """
 
-    def __init__(self, attr, **k):
+    attr = None
+
+    def __init__(self, attr=None, **k):
         """
         Create a new Sequence instance.
 
         @keyword attr: Attribute type of items in the sequence.
         """
         super(Sequence, self).__init__(**k)
-        self.attr = attr
+        if attr is not None:
+            self.attr = attr
 
     def validate(self, value):
         """
@@ -142,7 +162,6 @@ class Sequence(Attribute):
             raise Invalid(e.message, value, None, error_dict = errors)
         
 
-
 class Tuple(Attribute):
     """
     A Python tuple of attributes of specific types.
@@ -150,14 +169,17 @@ class Tuple(Attribute):
     @ivar attrs: List of Attributes that define the items in the tuple.
     """
 
-    def __init__(self, attrs, **k):
+    attrs = None
+
+    def __init__(self, attrs=None, **k):
         """
         Create a Tuple instance.
 
         @param attrs: List of Attributes that define the items in the tuple.
         """
         super(Tuple, self).__init__(**k)
-        self.attrs = attrs
+        if attrs is not None:
+            self.attrs = attrs
 
     def validate(self, value):
         """
@@ -280,3 +302,4 @@ class File(Attribute):
     A File Object
     """
     pass
+
