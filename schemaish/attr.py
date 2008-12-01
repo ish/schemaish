@@ -8,9 +8,7 @@ __all__ = ['String', 'Integer', 'Float', 'Decimal', 'Date', 'Time', 'Boolean', '
 
 
 import itertools
-from formencode import Invalid
-
-from schemaish import validators
+from validatish import validate
 
 
 # Internal counter used to ensure the order of a meta structure's attributes is
@@ -20,6 +18,13 @@ _meta_order = itertools.count()
 
 _MISSING = object()
 
+class Invalid(Exception):
+    def __init__(self, msg, error_dict=None):
+        self.msg = msg
+        self.error_dict=error_dict
+
+    def __str__(self):
+        return self.msg
 
 class Attribute(object):
     """
@@ -32,7 +37,7 @@ class Attribute(object):
 
     title = None
     description = None
-    validator = validators.Always()
+    validator = validate.Always()
 
     def __init__(self, **k):
         """
@@ -59,7 +64,10 @@ class Attribute(object):
         """
         if not self.validator:
             return
-        self.validator.to_python(value)
+        try:
+            self.validator(value)
+        except validate.Invalid, e:
+            raise Invalid(e.msg)
 
 
 class String(Attribute):
@@ -159,7 +167,7 @@ class Sequence(Attribute):
             errors[''] = e
             
         if errors:
-            raise Invalid(e.message, value, None, error_dict = errors)
+            raise Invalid(e.message, error_dict = errors)
         
 
 class Tuple(Attribute):
@@ -187,7 +195,7 @@ class Tuple(Attribute):
         """
         if value:
             if len(self.attrs) != len(value):
-                raise Invalid("Incorrect size", value, None)
+                raise Invalid("Incorrect size")
             for attr, item in zip(self.attrs, value):
                 attr.validate(item)
         super(Tuple, self).validate(value)
@@ -282,6 +290,7 @@ class Structure(Attribute):
                 try:
                     attr.validate(value.get(name))
                 except Invalid, e:
+                    
                     if e.error_dict is not None:
                         for k, v in e.error_dict.items():
                             errors['%s.%s'%(name,k)] = v
@@ -293,7 +302,7 @@ class Structure(Attribute):
             errors[''] = e
             
         if errors.keys():
-            raise Invalid(e.message, value, None, error_dict = errors)
+            raise Invalid(e.message, error_dict = errors)
 
 
 

@@ -7,5 +7,4 @@ A high-level schema definition package, using formencode for validation.
 
 from schemaish.attr import *
 from schemaish.validators import *
-from formencode.validators import Invalid
 

@@ -2,7 +2,9 @@ import datetime
 import unittest
 
 from schemaish import *
-from schemaish.attr import Attribute
+from schemaish.attr import Attribute, Invalid
+
+from validatish import validate
 
 
 class TestCore(unittest.TestCase):
@@ -13,7 +15,7 @@ class TestCore(unittest.TestCase):
         assert not attr.description
         assert not attr.description
         assert not attr.validator
-        assert isinstance(attr.validator, Always)
+        assert isinstance(attr.validator, validate.Always)
 
     def test_positional(self):
         self.assertRaises(TypeError, String, "a")
@@ -33,30 +35,17 @@ class TestCore(unittest.TestCase):
         class Something(Attribute):
             title = 'Title'
             description = 'Description'
-            validator = NotEmpty()
+            validator = staticmethod(validate.required)
         attr = Something()
         assert attr.title is Something.title
         assert attr.description is Something.description
+        print 'A',attr.validator
+        print 'S',Something.validator
         assert attr.validator is Something.validator
         attr = Something(title=None, description=None, validator=None)
         assert attr.title is None
         assert attr.description is None
         assert attr.validator is None
-
-    def test_extend_default_validator(self):
-        """
-        Check that the default validator can be extended without testing that
-        the default validator is anything useful..
-
-        # XXX: There's no point in testing Any because it's a silly way to
-        # extend the default.
-        """
-        attr = String(validator=All(String.validator, NotEmpty()))
-        attr.validate('foo')
-        self.assertRaises(Invalid, attr.validate, '')
-        attr = String(validator=(NotEmpty() if not String.validator else All(String.validator, NotEmpty())))
-        attr.validate('foo')
-        self.assertRaises(Invalid, attr.validate, '')
 
 
 class TestString(unittest.TestCase):
@@ -64,8 +53,8 @@ class TestString(unittest.TestCase):
     def test_validate(self):
         String().validate("")
         String().validate(None)
-        self.assertRaises(Invalid, String(validator=NotEmpty()).validate, None)
-        self.assertRaises(Invalid, String(validator=NotEmpty()).validate, "")
+        self.assertRaises(Invalid, String(validator=validate.required).validate, None)
+        self.assertRaises(Invalid, String(validator=validate.required).validate, "")
 
 
 class TestDate(unittest.TestCase):
@@ -74,8 +63,8 @@ class TestDate(unittest.TestCase):
         today = datetime.date.today()
         Date().validate(None)
         Date().validate(today)
-        Date(validator=NotEmpty).validate(today)
-        self.assertRaises(Invalid, Date(validator=NotEmpty).validate, None)
+        Date(validator=validate.required).validate(today)
+        self.assertRaises(Invalid, Date(validator=validate.required).validate, None)
 
 
 class TestSequence(unittest.TestCase):
@@ -85,18 +74,18 @@ class TestSequence(unittest.TestCase):
         s.validate(None)
         s.validate([])
         s.validate(["one", "two"])
-        s = Sequence(attr=String(), validator=NotEmpty)
+        s = Sequence(attr=String(), validator=validate.required)
         s.validate(["one"])
         self.assertRaises(Invalid, s.validate, [])
 
     def test_nested_validation(self):
-        s = Sequence(String(validator=NotEmpty))
+        s = Sequence(String(validator=validate.required))
         s.validate([])
         self.assertRaises(Invalid, s.validate, [""])
-        s = Sequence(attr=String(validator=NotEmpty))
+        s = Sequence(attr=String(validator=validate.required))
         s.validate(['one'])
         self.assertRaises(Invalid, s.validate, [''])
-        s = Sequence(Structure([('str', String(validator=NotEmpty))]))
+        s = Sequence(Structure([('str', String(validator=validate.required))]))
         s.validate([{'str': 'one'}])
         self.assertRaises(Invalid, s.validate, [{}])
 
@@ -116,10 +105,10 @@ class TestTuple(unittest.TestCase):
         t.validate(None)
         t.validate(tuple())
         t.validate(("one", "two"))
-        t = Tuple([String(), String()], validator=NotEmpty)
+        t = Tuple([String(), String()], validator=validate.required)
         t.validate(("one", "two"))
         self.assertRaises(Invalid, t.validate, tuple())
-        t = Tuple([String(validator=NotEmpty), String()])
+        t = Tuple([String(validator=validate.required), String()])
         t.validate(("one", "two"))
         t.validate(("one", ""))
         self.assertRaises(Invalid, t.validate, ("", ""))
@@ -164,7 +153,7 @@ class TestStructure(unittest.TestCase):
         """
         s = Structure([("one", String()), ("two", String())])
         s.validate({})
-        s = Structure([("one", String(validator=NotEmpty())), ("two", String())])
+        s = Structure([("one", String(validator=validate.required)), ("two", String())])
         self.assertRaises(Invalid, s.validate, {})
 
     def test_validate_nested(self):
@@ -176,7 +165,7 @@ class TestStructure(unittest.TestCase):
 
         s = Structure([
             ("one", Structure([
-                ("a", String(validator=NotEmpty)),
+                ("a", String(validator=validate.required)),
                 ("b", String()),
                 ])),
             ])
@@ -211,7 +200,7 @@ class TestStructure(unittest.TestCase):
     def test_meta(self):
 
         class TestStructure(Structure):
-            one = String(validator=NotEmpty)
+            one = String(validator=validate.required)
             two = String()
 
         s = TestStructure()
@@ -221,7 +210,7 @@ class TestStructure(unittest.TestCase):
     def test_extend_meta(self):
 
         class TestStructure(Structure):
-            one = String(validator=NotEmpty)
+            one = String(validator=validate.required)
             two = String()
 
         s1 = TestStructure()
@@ -237,14 +226,14 @@ class TestStructure(unittest.TestCase):
 class TestRecursiveValidate(unittest.TestCase):
 
     def test_validate_sequence(self):
-        s = Sequence(String(validator=NotEmpty))
+        s = Sequence(String(validator=validate.required))
         try:
             s.validate( ["",""] )
         except Invalid, e:
             print e.error_dict
             
     def test_validate_structure(self):
-        s = Structure([('list',Sequence(String(validator=NotEmpty)))])
+        s = Structure([('list',Sequence(String(validator=validate.required)))])
         try:
             s.validate( {'list':["",""]} )
         except Invalid, e:
