@@ -19,7 +19,7 @@ setup(name='schemaish',
       zip_safe=False,
       install_requires=[
           # -*- Extra requirements: -*-
-          'formencode',
+          'validatish',
       ],
       entry_points="""
       # -*- Entry points: -*-
