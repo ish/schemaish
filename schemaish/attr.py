@@ -8,7 +8,7 @@ __all__ = ['String', 'Integer', 'Float', 'Decimal', 'Date', 'Time', 'Boolean', '
 
 
 import itertools
-from validatish import validate
+import validatish
 
 
 # Internal counter used to ensure the order of a meta structure's attributes is
@@ -37,7 +37,7 @@ class Attribute(object):
 
     title = None
     description = None
-    validator = validate.Always()
+    validator = validatish.Always()
 
     def __init__(self, **k):
         """
@@ -66,7 +66,7 @@ class Attribute(object):
             return
         try:
             self.validator(value)
-        except validate.Invalid, e:
+        except validatish.Invalid, e:
             raise Invalid(e.msg)
 
 
