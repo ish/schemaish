@@ -18,13 +18,18 @@ _meta_order = itertools.count()
 
 _MISSING = object()
 
+
 class Invalid(Exception):
-    def __init__(self, msg, error_dict=None):
-        self.msg = msg
+
+    def __init__(self, message, error_dict=None):
+        Exception.__init__(self, message, error_dict)
+        self.message = message
         self.error_dict=error_dict
 
     def __str__(self):
-        return self.msg
+        return self.message
+    __unicode__ = __str__
+
 
 class Attribute(object):
     """
@@ -67,7 +72,7 @@ class Attribute(object):
         try:
             self.validator(value)
         except validatish.Invalid, e:
-            raise Invalid(e.msg)
+            raise Invalid(e.message)
 
 
 class String(Attribute):
