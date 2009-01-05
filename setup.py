@@ -15,7 +15,7 @@ Schemaish is a simple schema library that allow the construction and validation 
           "License :: OSI Approved :: BSD License",
           "Operating System :: OS Independent",
           "Programming Language :: Python :: 2",
-          "Topic :: Software Development :: Libraries :: Python Modules"
+          "Topic :: Software Development :: Libraries :: Python Modules",
       ], 
       keywords='schema,validation',
       author='Tim Parkin, Matt Goodall',
