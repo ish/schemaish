@@ -1,0 +1,26 @@
+==========
+Installing
+==========
+
+Requirements
+------------
+
+You will need:
+
+* python 2.4 or later.
+
+* validatish
+  http://ish.io
+
+Installation
+------------
+
+If you have easy_install, you can run the following 
+
+  easy_install validatish
+
+This will also bring in all of the requirements.
+
+  
+
+
