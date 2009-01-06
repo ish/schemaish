@@ -3,8 +3,9 @@ Schema attribute types, also imported into the main package.
 """
 
 
-__all__ = ['String', 'Integer', 'Float', 'Decimal', 'Date', 'Time', 'Boolean', 'Sequence',
-        'Tuple', 'Structure', 'DateTime','File', 'Invalid']
+__all__ = ['String', 'Integer', 'Float', 'Decimal', 'Date',
+           'Time', 'Boolean', 'Sequence', 'Tuple', 'Structure',
+           'DateTime','File', 'Invalid']
 
 
 import itertools
@@ -20,6 +21,9 @@ _MISSING = object()
 
 
 class Invalid(Exception):
+    """
+    basic schema validation exception
+    """
 
     def __init__(self, message, error_dict=None):
         Exception.__init__(self, message, error_dict)
@@ -163,7 +167,7 @@ class Sequence(Attribute):
                 except Invalid, e:
                     if e.error_dict is not None:
                         for k, v in e.error_dict.items():
-                            errors['%s.%s'%(str(n),k)] = v
+                            errors['%s.%s' % (str(n), k)] = v
                     errors[str(n)] = e
 
         try:
@@ -298,7 +302,7 @@ class Structure(Attribute):
                     
                     if e.error_dict is not None:
                         for k, v in e.error_dict.items():
-                            errors['%s.%s'%(name,k)] = v
+                            errors['%s.%s' % (name, k)] = v
                     errors[name] = e
                         
         try:
