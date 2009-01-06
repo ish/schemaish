@@ -1,10 +1,18 @@
 Metadata-Version: 1.0
 Name: schemaish
-Version: 0.0dev
-Summary: UNKNOWN
-Home-page: UNKNOWN
-Author: UNKNOWN
-Author-email: UNKNOWN
-License: UNKNOWN
-Description: UNKNOWN
+Version: 0.5
+Summary: Schemaish is a simple schema library.
+Home-page: http://ish.io/projects/show/schemaish
+Author: Tim Parkin, Matt Goodall
+Author-email: developers@ish.io
+License: BSD
+Description: Schemaish is a simple schema library that allow the construction and validation of python data structures.
+        
+Keywords: schema,validation
 Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

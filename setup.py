@@ -1,19 +1,27 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.0'
+version = '0.5'
 
 setup(name='schemaish',
       version=version,
-      description="",
+      description="Schemaish is a simple schema library.",
       long_description="""\
+Schemaish is a simple schema library that allow the construction and validation of python data structures.
 """,
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      keywords='',
-      author='',
-      author_email='',
-      url='',
-      license='',
+      classifiers=[
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "License :: OSI Approved :: BSD License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 2",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+      ], 
+      keywords='schema,validation',
+      author='Tim Parkin, Matt Goodall',
+      author_email='developers@ish.io',
+      url='http://ish.io/projects/show/schemaish',
+      license='BSD',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
