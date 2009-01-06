@@ -17,7 +17,7 @@ Installation
 
 If you have easy_install, you can run the following 
 
-  easy_install validatish
+  easy_install schemaish
 
 This will also bring in all of the requirements.
 
