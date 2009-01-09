@@ -25,13 +25,12 @@ class Invalid(Exception):
     basic schema validation exception
     """
 
-    def __init__(self, message, error_dict=None):
-        Exception.__init__(self, message, error_dict)
-        self.message = message
+    def __init__(self, error_dict):
+        Exception.__init__(self,error_dict)
         self.error_dict=error_dict
 
     def __str__(self):
-        return self.message
+        return self.error_dict.get('')
     __unicode__ = __str__
 
 
@@ -76,7 +75,7 @@ class Attribute(object):
         try:
             self.validator(value)
         except validatish.Invalid, e:
-            raise Invalid(e.message)
+            raise Invalid({'':e.message})
 
 
 class String(Attribute):
@@ -159,24 +158,22 @@ class Sequence(Attribute):
         Validate all items in the sequence and then validate the Sequence
         itself.
         """
-        errors = {}
+        error_dict= {}
         if value is not None:
             for n, item in enumerate(value):
                 try:
                     self.attr.validate(item)
                 except Invalid, e:
-                    if e.error_dict is not None:
-                        for k, v in e.error_dict.items():
-                            errors['%s.%s' % (str(n), k)] = v
-                    errors[str(n)] = e
+                    for k, v in e.error_dict.items():
+                        error_dict['%s.%s' % (str(n), k)] = v
 
         try:
             super(Sequence, self).validate(value)
         except Invalid, e:
-            errors[''] = e
+            error_dict.update(e.error_dict)
             
-        if errors:
-            raise Invalid(e.message, error_dict = errors)
+        if error_dict:
+            raise Invalid(error_dict)
         
 
 class Tuple(Attribute):
@@ -204,7 +201,7 @@ class Tuple(Attribute):
         """
         if value:
             if len(self.attrs) != len(value):
-                raise Invalid("Incorrect size")
+                raise Invalid({'':"Incorrect size"})
             for attr, item in zip(self.attrs, value):
                 attr.validate(item)
         super(Tuple, self).validate(value)
@@ -293,25 +290,24 @@ class Structure(Attribute):
         Validate all items in the sequence and then validate the Sequence
         itself.
         """
-        errors = {}
+        error_dict = {}
         if value is not None:
             for (name, attr) in self.attrs:
                 try:
                     attr.validate(value.get(name))
                 except Invalid, e:
-                    
-                    if e.error_dict is not None:
-                        for k, v in e.error_dict.items():
-                            errors['%s.%s' % (name, k)] = v
-                    errors[name] = e
-                        
+                    for k, v in e.error_dict.items():
+                        if k == '':
+                            error_dict[name] = v
+                        else:
+                            error_dict['%s.%s' % (name, k)] = v
         try:
             super(Structure, self).validate(value)
         except Invalid, e:
-            errors[''] = e
+            error_dict.update(e.errror_dict)
             
-        if errors.keys():
-            raise Invalid(e.message, error_dict = errors)
+        if error_dict:
+            raise Invalid(error_dict)
 
 
 

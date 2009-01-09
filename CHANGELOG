@@ -2,6 +2,13 @@
 Changlelog
 ==========
 
+0.5.1 (2009-01-09)
+------------------
+
+* Waved magic pylint wand
+
+BUGFIX: Exceptions were wrongly propogating to parent containers
+CHANGE: schemaish.Invalid has a new signature (shouldn't affect typical use cases)
 
 0.5 (2009-01-05)
 ----------------
