@@ -9,7 +9,7 @@ setup(name='schemaish',
       long_description="""\
 Schemaish is a simple schema library that allow the construction and validation of python data structures.
 
-      Changlog at `http://github.com/ish/schemaish/raw/master/CHANGELOG <http://github.com/ish/schemaish/raw/master/CHANGELOG>`_
+      Changelog at `http://github.com/ish/schemaish/raw/master/CHANGELOG <http://github.com/ish/schemaish/raw/master/CHANGELOG>`_
 """,
       classifiers=[
           "Development Status :: 4 - Beta",
