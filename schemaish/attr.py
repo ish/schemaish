@@ -165,7 +165,10 @@ class Sequence(Attribute):
                     self.attr.validate(item)
                 except Invalid, e:
                     for k, v in e.error_dict.items():
-                        error_dict['%s.%s' % (str(n), k)] = v
+                        if k == '':
+                            error_dict[str(n)] = v
+                        else:
+                            error_dict['%s.%s' % (str(n), k)] = v
 
         try:
             super(Sequence, self).validate(value)
@@ -304,7 +307,7 @@ class Structure(Attribute):
         try:
             super(Structure, self).validate(value)
         except Invalid, e:
-            error_dict.update(e.errror_dict)
+            error_dict.update(e.error_dict)
             
         if error_dict:
             raise Invalid(error_dict)

@@ -97,6 +97,19 @@ class TestSequence(unittest.TestCase):
         assert isinstance(StringSequence().attr, String)
         assert isinstance(DateSequence().attr, Date)
 
+    def test_item_error(self):
+        """
+        Check sequence re-raise exceptions with correct names.
+        """
+        def fail(value):
+            raise validatish.Invalid('fail')
+        s = Sequence(String(validator=fail))
+        try:
+            s.validate([''])
+            self.fail()
+        except Invalid, e:
+            self.assertTrue('0' in e.error_dict)
+
 
 class TestTuple(unittest.TestCase):
 
