@@ -2,6 +2,14 @@
 Changlelog
 ==========
 
+
+0.5.2 (2009-01-14)
+------------------
+
+* Fix Sequence.validate() to correctly map exception error_dict keys of
+  immediate children.
+
+
 0.5.1 (2009-01-09)
 ------------------
 
