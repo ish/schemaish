@@ -373,3 +373,7 @@ body a:link {
   text-decoration: none;
 }
 
+#sphinx #main {
+  padding-top:38px;
+}
+
