@@ -232,17 +232,19 @@ class Structure(Attribute):
     class syntax. For example the following result in s1 and s2 defining the
     same structure:
 
-        s1 = Structure("Your Name")
-        s1.add("title", String("Title"))
-        s1.add("first", String("First Name"))
-        s1.add("last", String("Last Name"))
+    >>> from schemaish import Structure, String
+    >>> s1 = Structure()
+    >>> s1.add("title", String())
+    >>> s1.add("first", String(title="First Name"))
+    >>> s1.add("last", String(title="Last Name"))
 
-        class Name(Structure):
-            title = String("Title")
-            first = String("First Name")
-            last = String("Last Name")
+    >>> class Name(Structure):
+    ...    title = String()
+    ...    first = String(title="First Name")
+    ...    last = String(title="Last Name")
+    ...
 
-        s2 = Name("Your Name")
+    >>> s2 = Name()
 
     @ivar attrs: List of (name, attribute) tuples each of which defines the
         names and type of an attribute of the structure.
