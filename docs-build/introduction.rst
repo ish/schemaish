@@ -5,7 +5,7 @@ About Schemaish
 Schemaish is a schema library that was initially written to support the formish form library. However it has been designed to work as a standalone schema package with validation from validatish.
 
 How does Schemaish work?
-++++++++++++++++++++++++
+------------------------
 
 There are two ways of creating schemas, the procedural way and the declarative way. Here is the procedural way.
 
@@ -19,7 +19,7 @@ The schema can now be used to validate a value..
 .. note:: Validation does not validate types, it only calls the validation that has been applied to the schema. If you need to have type validation, add a specific validator
 
 A Schemaish Structure
-+++++++++++++++++++++
+---------------------
 
 Just create a create a structure and add schema attributes to it!
 
@@ -33,9 +33,19 @@ and we can now validate a dictionary
 
 .. note:: The title and description are used by Formish as the label and description of each field.
 
+Declarative Schema Generation
+-----------------------------
+
+This will be familiar to many developers.. 
+
+>>> class Name(Structure):
+...    title = String()
+...    first = String(title="First Name")
+...    last = String(title="Last Name")
+
 
 Validation
-++++++++++
+==========
 
 See the validatish module documentation to learn more about the validators available.
 

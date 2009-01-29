@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.5.2'
+version = '0.5.3'
 
 setup(name='schemaish',
       version=version,
       description="Schemaish is a simple schema library.",
       long_description="""\
-Schemaish is a simple schema library that allow the construction and validation of python data structures.
+Schemaish is a simple schema library that allow the construction and validation of python data structures. Take a look at `http://schema.ish.io <http://schema.ish.io>`_ for more info.
 
       Changelog at `http://github.com/ish/schemaish/raw/master/CHANGELOG <http://github.com/ish/schemaish/raw/master/CHANGELOG>`_
 """,
@@ -22,16 +22,17 @@ Schemaish is a simple schema library that allow the construction and validation 
       keywords='schema,validation',
       author='Tim Parkin, Matt Goodall',
       author_email='developers@ish.io',
-      url='http://ish.io/projects/show/schemaish',
+      url='http://schema.ish.io',
       license='BSD',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
       install_requires=[
           # -*- Extra requirements: -*-
-          'validatish',
+          'validatish >= 0.6',
       ],
       entry_points="""
       # -*- Entry points: -*-
       """,
       )
+

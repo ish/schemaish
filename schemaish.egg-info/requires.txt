@@ -1,1 +1,1 @@
-validatish
+validatish >= 0.6

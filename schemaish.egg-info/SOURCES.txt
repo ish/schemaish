@@ -89,7 +89,6 @@ docs/doctrees/introduction.doctree
 docs/html/genindex.html
 docs/html/index.html
 docs/html/introduction.html
-docs/html/modindex.html
 docs/html/objects.inv
 docs/html/search.html
 docs/html/searchindex.js

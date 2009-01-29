@@ -75,7 +75,7 @@ class Attribute(object):
         try:
             self.validator(value)
         except validatish.Invalid, e:
-            raise Invalid({'':e.message})
+            raise Invalid({'':e})
 
 
 class String(Attribute):
