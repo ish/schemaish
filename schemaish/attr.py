@@ -28,10 +28,17 @@ class Invalid(Exception):
     def __init__(self, error_dict):
         Exception.__init__(self,error_dict)
         self.error_dict=error_dict
+        m = []
+        for k,v in self.error_dict.items():
+            m.append( 'field "%s" %s'%(k,v.message))
+        self.message = '\n'.join(m)
+
 
     def __str__(self):
-        return self.error_dict.get('')
+        return self.message
     __unicode__ = __str__
+
+
 
 
 class Attribute(object):
@@ -76,6 +83,9 @@ class Attribute(object):
             self.validator(value)
         except validatish.Invalid, e:
             raise Invalid({'':e})
+
+    def __repr__(self):
+        return 'schemaish.%s()'%self.__class__.__name__
 
 
 class String(Attribute):
@@ -177,7 +187,9 @@ class Sequence(Attribute):
             
         if error_dict:
             raise Invalid(error_dict)
-        
+
+    def __repr__(self):
+        return 'schemaish.Sequence(%r)'%self.attr
 
 class Tuple(Attribute):
     """
@@ -204,10 +216,13 @@ class Tuple(Attribute):
         """
         if value:
             if len(self.attrs) != len(value):
-                raise Invalid({'':"Incorrect size"})
+                raise Invalid({'':validatish.Invalid("Incorrect size")})
             for attr, item in zip(self.attrs, value):
                 attr.validate(item)
         super(Tuple, self).validate(value)
+
+    def __repr__(self):
+        return 'schemaish.Tuple(%r)'%self.attr
 
 
 class _StructureMeta(type):
@@ -314,6 +329,10 @@ class Structure(Attribute):
         if error_dict:
             raise Invalid(error_dict)
 
+    def __repr__(self):
+        item = '"%s": %s, '
+        attrstrings = [item%a for a in self.attrs]
+        return 'schemaish.Structure(%s)'%(''.join(attrstrings))
 
 
 class File(Attribute):

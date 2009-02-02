@@ -5,6 +5,7 @@ from schemaish import *
 from schemaish.attr import Attribute, Invalid
 
 import validatish
+from  convertish import convert
 
 
 class TestCore(unittest.TestCase):
@@ -39,8 +40,6 @@ class TestCore(unittest.TestCase):
         attr = Something()
         assert attr.title is Something.title
         assert attr.description is Something.description
-        print 'A',attr.validator
-        print 'S',Something.validator
         assert attr.validator is Something.validator
         attr = Something(title=None, description=None, validator=None)
         assert attr.title is None
@@ -235,6 +234,19 @@ class TestStructure(unittest.TestCase):
         self.assertEquals(len(s1.attrs), 2)
         self.assertEquals(len(s2.attrs), 3)
 
+    def test_convert(self):
+
+        s = Structure([
+            ("one", Structure([
+                ("a", String()),
+                ("b", Date()),
+                ])),
+            ])
+        from datetime import date
+        from convertish import converter
+        out = converter('python','json').convert(s,{"one": {"a": "1a", "b": datetime.date(1966,1,1)}})
+        expected = {'one': {'a': '1a', 'b': {'month': 1, '__type__': 'date', 'day': 1, 'year': 1966}}}
+        assert out == expected
         
 class TestRecursiveValidate(unittest.TestCase):
 
@@ -243,14 +255,16 @@ class TestRecursiveValidate(unittest.TestCase):
         try:
             s.validate( ["",""] )
         except Invalid, e:
-            print e.error_dict
+            return
+        unittest.TestCase.fail('no exception raised')
             
     def test_validate_structure(self):
         s = Structure([('list',Sequence(String(validator=validatish.Required())))])
         try:
             s.validate( {'list':["",""]} )
         except Invalid, e:
-            print e.error_dict
+            return
+        unittest.TestCase.fail('no exception raised')
 
 
 if __name__ == "__main__":
