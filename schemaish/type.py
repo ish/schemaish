@@ -9,5 +9,5 @@ class File(object):
         self.mimetype = mimetype
 
     def __repr__(self):
-        return '<schemaish.type.File file="%r" filename="%s", mimtype="%s">'%(self.file, self.filename, self.mimetype)
+        return '<schemaish.type.File file="%r" filename="%s", mimetype="%s">'%(self.file, self.filename, self.mimetype)
 

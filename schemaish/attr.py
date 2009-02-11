@@ -85,7 +85,14 @@ class Attribute(object):
             raise Invalid({'':e})
 
     def __repr__(self):
-        return 'schemaish.%s()'%self.__class__.__name__
+        attributes = []
+        if self.title:
+            attributes.append('title=%s'%repr(self.title))
+        if self.description:
+            attributes.append('description=%s'%repr(self.description))
+        if self.validator:
+            attributes.append('validator=%s'%repr(self.validator))
+        return 'schemaish.%s(%s)'%(self.__class__.__name__, ', '.join(attributes))
 
 
 class String(Attribute):
@@ -330,9 +337,9 @@ class Structure(Attribute):
             raise Invalid(error_dict)
 
     def __repr__(self):
-        item = '"%s": %s, '
+        item = '"%s": %s'
         attrstrings = [item%a for a in self.attrs]
-        return 'schemaish.Structure(%s)'%(''.join(attrstrings))
+        return 'schemaish.Structure(%s)'%(', '.join(attrstrings))
 
 
 class File(Attribute):
