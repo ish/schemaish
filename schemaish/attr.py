@@ -217,6 +217,17 @@ class Tuple(Attribute):
         if attrs is not None:
             self.attrs = attrs
 
+    def add(self, attr):
+        """
+        Add an attribute to the tuple
+
+        @param attr: Attribute type.
+        """
+        if attr is None:
+            self.attrs = [attr]
+        else:
+            self.attrs.append(attr)
+
     def validate(self, value):
         """
         Validate the tuple's items and the tuple itself.
