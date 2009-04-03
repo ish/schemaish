@@ -50,6 +50,7 @@ class Attribute(object):
     @ivar validator: Optional FormEncode validator.
     """
 
+    type = None
     title = None
     description = None
     validator = validatish.Always()
@@ -99,56 +100,56 @@ class String(Attribute):
     """
     A Python unicode instance.
     """
-    pass
+    type = 'String'
 
 
 class Integer(Attribute):
     """
     A Python integer.
     """
-    pass
+    type='Integer'
 
 
 class Float(Attribute):
     """
     A Python float.
     """
-    pass
+    type='Float'
 
 
 class Decimal(Attribute):
     """
     A decimal.Decimal instance.
     """
-    pass
+    type='Decimal'
 
 
 class Date(Attribute):
     """
     A datetime.date instance.
     """
-    pass
+    type='Date'
 
 
 class Time(Attribute):
     """
     A datetime.time instance.
     """
-    pass
+    type='Time'
 
 
 class DateTime(Attribute):
     """
     A datetime.datetime instance.
     """
-    pass
+    type='DateTime'
 
 
 class Boolean(Attribute):
     """
     A Python Boolean instance.
     """
-    pass
+    type='Boolean'
 
 
 class Sequence(Attribute):
@@ -157,7 +158,7 @@ class Sequence(Attribute):
 
     @ivar attr: Attribute type of items in the sequence.
     """
-
+    type = 'Sequence'
     attr = None
 
     def __init__(self, attr=None, **k):
@@ -204,7 +205,8 @@ class Tuple(Attribute):
 
     @ivar attrs: List of Attributes that define the items in the tuple.
     """
-
+ 
+    type = 'Tuple'
     attrs = None
 
     def __init__(self, attrs=None, **k):
@@ -240,7 +242,7 @@ class Tuple(Attribute):
         super(Tuple, self).validate(value)
 
     def __repr__(self):
-        return 'schemaish.Tuple(%r)'%self.attr
+        return 'schemaish.Tuple(%r)'%self.attrs
 
 
 class _StructureMeta(type):
@@ -283,6 +285,7 @@ class Structure(Attribute):
         names and type of an attribute of the structure.
     """
 
+    type = 'Structure'
     __metaclass__ = _StructureMeta
 
     def __init__(self, attrs=None, **k):
@@ -357,5 +360,5 @@ class File(Attribute):
     """
     A File Object
     """
-    pass
+    type = 'File'
 
