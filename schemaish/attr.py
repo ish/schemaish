@@ -257,7 +257,7 @@ class _StructureMeta(type):
             if isinstance(value, Attribute))
         # Combine all attrs from this class and its subclasses.
         attrs = []
-        for c in itertools.chain([cls], bases):
+        for c in cls.__mro__:
             attrs.extend(getattr(c, '__schemaish_structure_attrs__', []))
         # Sort the attrs to maintain the order as defined, and assign to the
         # class.
