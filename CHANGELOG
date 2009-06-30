@@ -9,6 +9,7 @@ Changlelog
 * Added metadata attribute to File attr.
 * 'add' method added to Tuple attr.
 * Better reprs
+* Support inheritance of meta-class defined attrs
 
 0.5.3 (2009-01-29)
 ------------------
