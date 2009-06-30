@@ -187,4 +187,5 @@ schemaish.egg-info/entry_points.txt
 schemaish.egg-info/not-zip-safe
 schemaish.egg-info/requires.txt
 schemaish.egg-info/top_level.txt
+schemaish/tests/__init__.py
 schemaish/tests/test_attr.py

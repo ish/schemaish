@@ -233,6 +233,22 @@ class TestStructure(unittest.TestCase):
         self.assertEquals(len(s1.attrs), 2)
         self.assertEquals(len(s2.attrs), 3)
 
+    def test_meta_inheritance(self):
+        class S1(Structure):
+            first = String()
+        class Mixin(object):
+            pass
+        class S2(Mixin, S1):
+            second = String()
+        class S3(S2):
+            third = String()
+        self.assertEquals(len(S1.attrs), 1)
+        self.assertEquals([i[0] for i in S1.attrs], ['first'])
+        self.assertEquals(len(S2.attrs), 2)
+        self.assertEquals([i[0] for i in S2.attrs], ['first', 'second'])
+        self.assertEquals(len(S3.attrs), 3)
+        self.assertEquals([i[0] for i in S3.attrs], ['first', 'second', 'third'])
+
         
 class TestRecursiveValidate(unittest.TestCase):
 

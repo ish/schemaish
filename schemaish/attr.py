@@ -38,6 +38,10 @@ class Invalid(Exception):
         return self.message
     __unicode__ = __str__
 
+    # Hide Python 2.6 deprecation warnings.
+    def _get_message(self): return self._message
+    def _set_message(self, message): self._message = message
+    message = property(_get_message, _set_message)
 
 
 
@@ -246,16 +250,18 @@ class Tuple(Attribute):
 
 
 class _StructureMeta(type):
-
     def __init__(cls, name, bases, clsattrs):
+        # Gather attrs specific to this class.
+        cls.__schemaish_structure_attrs__ = list(
+            (name, value) for (name, value) in clsattrs.iteritems()
+            if isinstance(value, Attribute))
+        # Combine all attrs from this class and its subclasses.
         attrs = []
-        for (name, value) in clsattrs.items():
-            if isinstance(value, Attribute):
-                attrs.append((name, value))
-                del clsattrs[name]
-        attrs = [(a[1]._meta_order, a) for a in attrs]
-        attrs.sort()
-        attrs = [i[1] for i in attrs]
+        for c in cls.__mro__:
+            attrs.extend(getattr(c, '__schemaish_structure_attrs__', []))
+        # Sort the attrs to maintain the order as defined, and assign to the
+        # class.
+        attrs.sort(key=lambda i: i[1]._meta_order)
         cls.attrs = attrs
 
 

@@ -34,5 +34,6 @@ Schemaish is a simple schema library that allow the construction and validation 
       entry_points="""
       # -*- Entry points: -*-
       """,
+      test_suite='schemaish.tests',
       )
 
