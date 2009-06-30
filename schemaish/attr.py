@@ -242,7 +242,7 @@ class Tuple(Attribute):
         super(Tuple, self).validate(value)
 
     def __repr__(self):
-        return 'schemaish.Tuple(%r)'%self.attrs
+        return 'schemaish.Tuple(%r)'%(self.attrs,)
 
 
 class _StructureMeta(type):
