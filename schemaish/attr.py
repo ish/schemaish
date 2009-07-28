@@ -155,8 +155,10 @@ class Boolean(Attribute):
     """
     type='Boolean'
 
+class Container(Attribute):
+    type='Container'
 
-class Sequence(Attribute):
+class Sequence(Container):
     """
     A sequence (Python list) of attributes of a specific type.
 
@@ -265,7 +267,7 @@ class _StructureMeta(type):
         cls.attrs = attrs
 
 
-class Structure(Attribute):
+class Structure(Container):
     """
     Python dict conforming to a fixed structure.
 
