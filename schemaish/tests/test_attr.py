@@ -1,41 +1,28 @@
-import datetime
 import unittest
 
-from schemaish import *
-from schemaish.attr import Attribute, Invalid
-
-import validatish
-
-
-class TestCore(unittest.TestCase):
-
+class TestAttribute(unittest.TestCase):
+    def _getTargetClass(self):
+        from schemaish.attr import Attribute
+        return Attribute
+        
+    def _makeOne(self, **kw):
+        return self._getTargetClass()(**kw)
+        
     def test_defaults(self):
-        attr = Attribute()
+        import validatish
+        attr = self._makeOne()
         assert not attr.title
         assert not attr.description
         assert not attr.description
         assert not attr.validator
         assert isinstance(attr.validator, validatish.Always)
 
-    def test_positional(self):
-        self.assertRaises(TypeError, String, "a")
-
-    def test_title(self):
-        self.assertEquals(String(title="Title").title, "Title")
-
-    def test_description(self):
-        self.assertEquals(String(description="Description").description, "Description")
-
-    def test_meta_order(self):
-        a = String()
-        b = String()
-        self.assertTrue(a._meta_order < b._meta_order)
-
     def test_subclass(self):
+        Attribute = self._getTargetClass()
         class Something(Attribute):
             title = 'Title'
             description = 'Description'
-            validator = staticmethod(validatish.Required())
+            validator = staticmethod(required)
         attr = Something()
         assert attr.title is Something.title
         assert attr.description is Something.description
@@ -45,49 +32,108 @@ class TestCore(unittest.TestCase):
         assert attr.description is None
         assert attr.validator is None
 
+    def test__repr__(self):
+        attr = self._makeOne(title='title',
+                             description='description',
+                             validator=required)
+        expected = ("schemaish.Attribute(title='title', "
+                    "description='description', validator=<function required")
+        self.assertEqual(repr(attr)[:len(expected)], expected)
+        
 
 class TestString(unittest.TestCase):
+    def _getTargetClass(self):
+        from schemaish import String
+        return String
+
+    def _makeOne(self, *arg, **kw):
+        return self._getTargetClass()(*arg, **kw)
+
+    def test_positional(self):
+        self.assertRaises(TypeError, self._makeOne, "a")
+
+    def test_title(self):
+        self.assertEquals(self._makeOne(title="Title").title, "Title")
+
+    def test_description(self):
+        self.assertEquals(self._makeOne(description="Description").description,
+                          "Description")
+
+    def test_meta_order(self):
+        a = self._makeOne()
+        b = self._makeOne()
+        self.assertTrue(a._meta_order < b._meta_order)
 
     def test_validate(self):
-        String().validate("")
-        String().validate(None)
-        self.assertRaises(Invalid, String(validator=validatish.Required()).validate, None)
-        self.assertRaises(Invalid, String(validator=validatish.Required()).validate, "")
+        from schemaish.attr import Invalid
+        self._makeOne().validate("")
+        self._makeOne().validate(None)
+        self.assertRaises(
+            Invalid,
+            self._makeOne(validator=required).validate, None)
+        self.assertRaises(
+            Invalid,
+            self._makeOne(validator=required).validate, "")
 
 
 class TestDate(unittest.TestCase):
 
+    def _getTargetClass(self):
+        from schemaish import Date
+        return Date
+
+    def _makeOne(self, **kw):
+        return self._getTargetClass()(**kw)
+
     def test_validate(self):
+        from schemaish import Invalid
+        import datetime
         today = datetime.date.today()
+        Date = self._getTargetClass()
         Date().validate(None)
         Date().validate(today)
-        Date(validator=validatish.Required()).validate(today)
-        self.assertRaises(Invalid, Date(validator=validatish.Required()).validate, None)
+        Date(validator=required).validate(today)
+        self.assertRaises(Invalid,
+                          Date(validator=required).validate, None)
 
 
 class TestSequence(unittest.TestCase):
 
+    def _getTargetClass(self):
+        from schemaish import Sequence
+        return Sequence
+
+    def _makeOne(self, *arg, **kw):
+        return self._getTargetClass()(*arg, **kw)
+
     def test_validate(self):
-        s = Sequence(String())
+        from schemaish.attr import Invalid
+        s = self._makeOne(Attr())
         s.validate(None)
         s.validate([])
         s.validate(["one", "two"])
-        s = Sequence(attr=String(), validator=validatish.Required())
+        s = self._makeOne(attr=Attr(), validator=required)
         s.validate(["one"])
         self.assertRaises(Invalid, s.validate, [])
 
     def test_nested_validation(self):
-        s = Sequence(String(validator=validatish.Required()))
+        from schemaish.attr import Invalid
+        from schemaish.attr import Structure
+        s = self._makeOne(Attr(validator=required))
         s.validate([])
         self.assertRaises(Invalid, s.validate, [""])
-        s = Sequence(attr=String(validator=validatish.Required()))
+        s = self._makeOne(attr=Attr(validator=required))
         s.validate(['one'])
         self.assertRaises(Invalid, s.validate, [''])
-        s = Sequence(Structure([('str', String(validator=validatish.Required()))]))
+        s = self._makeOne(
+            Structure([('str', Attr(validator=required))]))
         s.validate([{'str': 'one'}])
         self.assertRaises(Invalid, s.validate, [{}])
 
     def test_subclass(self):
+        from schemaish import Date
+        from schemaish import String
+        Sequence = self._getTargetClass()
         class StringSequence(Sequence):
             attr = String()
         class DateSequence(Sequence):
@@ -99,35 +145,54 @@ class TestSequence(unittest.TestCase):
         """
         Check sequence re-raise exceptions with correct names.
         """
+        from schemaish import Invalid
+        import validatish
         def fail(value):
             raise validatish.Invalid('fail')
-        s = Sequence(String(validator=fail))
+        s = self._makeOne(Attr(validator=fail))
         try:
             s.validate([''])
             self.fail()
         except Invalid, e:
             self.assertTrue('0' in e.error_dict)
 
+    def test__repr__(self):
+        attr = self._makeOne()
+        self.assertEqual(repr(attr), 'schemaish.Sequence(None)')
 
 class TestTuple(unittest.TestCase):
 
+    def _getTargetClass(self):
+        from schemaish import Tuple
+        return Tuple
+
+    def _makeOne(self, *arg, **kw):
+        return self._getTargetClass()(*arg, **kw)
+
     def test_validate(self):
-        t = Tuple([String(), String()])
+        from schemaish.attr import Invalid
+        t = self._makeOne([Attr(), Attr()])
         t.validate(None)
         t.validate(tuple())
         t.validate(("one", "two"))
-        t = Tuple([String(), String()], validator=validatish.Required())
+        t = self._makeOne([Attr(), Attr()],
+                          validator=required)
         t.validate(("one", "two"))
         self.assertRaises(Invalid, t.validate, tuple())
-        t = Tuple([String(validator=validatish.Required()), String()])
+        t = self._makeOne([Attr(validator=required),Attr()])
         t.validate(("one", "two"))
         t.validate(("one", ""))
         self.assertRaises(Invalid, t.validate, ("", ""))
 
     def test_num_items(self):
-        self.assertRaises(Invalid, Tuple([String(), String()]).validate, ("one",))
+        from schemaish import Invalid
+        self.assertRaises(Invalid, self._makeOne(
+            [Attr(), Attr()]).validate, ("one",))
 
     def test_subclass(self):
+        from schemaish import Date
+        from schemaish import String
+        Tuple = self._getTargetClass()
         class Tuple1(Tuple):
             attrs = [String(), String(), String()]
         class Tuple2(Tuple):
@@ -142,42 +207,76 @@ class TestTuple(unittest.TestCase):
         assert isinstance(t2.attrs[0], String)
         assert isinstance(t2.attrs[1], Date)
 
+    def test__repr__(self):
+        attr = self._makeOne()
+        self.assertEqual(repr(attr), 'schemaish.Tuple(None)')
+
+    def test_add(self):
+        attr = self._makeOne([])
+        attr2 = Attr()
+        add = ('name', attr2)
+        attr.add(add)
+        self.assertEqual(attr.attrs, [add])
+
+    def test_add_None(self):
+        attr = self._makeOne([])
+        attr2 = Attr()
+        add = None
+        attr.add(add)
+        self.assertEqual(attr.attrs, [add])
 
 class TestStructure(unittest.TestCase):
+    def _getTargetClass(self):
+        from schemaish import Structure
+        return Structure
+
+    def _makeOne(self, *arg, **kw):
+        return self._getTargetClass()(*arg, **kw)
 
     def test_validate_empty(self):
-        s = Structure([])
+        s = self._makeOne([])
         s.validate({})
         s.validate({"notanattr": "bleurgh!"})
 
     def test_validate_extra(self):
-        s = Structure([("one", String())])
+        s = self._makeOne([("one", Attr())])
         s.validate({"one": "un", "notanattr": "Hah!"})
 
     def test_validate_attrs(self):
-        s = Structure([("one", String()), ("two", String())])
+        s = self._makeOne([("one", Attr()),("two", Attr())])
         s.validate({"one": "un", "two": "deux"})
+
+    def test_validate_structure_invalid(self):
+        from schemaish import Invalid
+        s = self._makeOne()
+        s.validator = required
+        self.assertRaises(Invalid, s.validate, None)
 
     def test_validate_missing_attrs(self):
         """
-        Check that completely missing data validates as long as nothing is required.
+        Check that completely missing data validates as long as nothing is
+        required.
         """
-        s = Structure([("one", String()), ("two", String())])
+        from schemaish.attr import Invalid
+        s = self._makeOne([("one", Attr()),("two", Attr())])
         s.validate({})
-        s = Structure([("one", String(validator=validatish.Required())), ("two", String())])
+        s = self._makeOne([("one", Attr(validator=required)),
+                           ("two", Attr())])
         self.assertRaises(Invalid, s.validate, {})
 
     def test_validate_nested(self):
+        from schemaish import Invalid
 
-        one = Structure([("a", String()), ("b", String())])
-        two = Structure([("a", String()), ("b", String())])
-        s = Structure([("one", one), ("two", two)])
-        s.validate({"one": {"a": "1a", "b": "1b"}, "two": {"a": "2a", "b": "2b"}})
+        one = self._makeOne([("a", Attr()), ("b", Attr())])
+        two = self._makeOne([("a", Attr()), ("b", Attr())])
+        s = self._makeOne([("one", one), ("two", two)])
+        s.validate({"one": {"a": "1a", "b": "1b"},
+                    "two": {"a": "2a", "b": "2b"}})
 
-        s = Structure([
-            ("one", Structure([
-                ("a", String(validator=validatish.Required())),
-                ("b", String()),
+        s = self._makeOne([
+            ("one", self._makeOne([
+                ("a", Attr(validator=required)),
+                ("b", Attr()),
                 ])),
             ])
         s.validate({"one": {"a": "1a", "b": "1b"}})
@@ -185,34 +284,38 @@ class TestStructure(unittest.TestCase):
         self.assertRaises(Invalid, s.validate, {"one": {"a": None, "b": "1b"}})
 
     def test_add(self):
-        s = Structure()
-        s.add("one", String())
-        s.add("two", String())
+        s = self._makeOne()
+        s.add("one", Attr())
+        s.add("two", Attr())
         s.validate({"one": "un", "two": "deux"})
 
     def test_get(self):
-        one = String()
-        s = Structure([("one", one)])
+        one = Attr()
+        s = self._makeOne([("one", one)])
         self.assertTrue(s.get("one") is one)
         self.assertRaises(KeyError, s.get, "two")
 
     def test_meta_order(self):
+        klass = self._getTargetClass()
 
-        class Test(Structure):
-            c = String()
-            wibble = String()
-            b = String()
-            wobble = String()
-            plop = String()
-            a = String()
+        class Test(klass):
+            c = Attr()
+            wibble = Attr()
+            b = Attr()
+            wobble = Attr()
+            plop = Attr()
+            a = Attr()
 
-        self.assertEquals([a[0] for a in Test.attrs], ["c", "wibble", "b", "wobble", "plop", "a"])
+        self.assertEquals([a[0] for a in Test.attrs],
+                          ["c", "wibble", "b", "wobble", "plop", "a"])
 
     def test_meta(self):
+        from schemaish.attr import Invalid
+        Structure = self._getTargetClass()
 
         class TestStructure(Structure):
-            one = String(validator=validatish.Required())
-            two = String()
+            one = Attr(validator=required)
+            two = Attr()
 
         s = TestStructure()
         s.validate({"one": "One", "two": "Two"})
@@ -220,40 +323,51 @@ class TestStructure(unittest.TestCase):
 
     def test_extend_meta(self):
 
+        Structure = self._getTargetClass()
+
         class TestStructure(Structure):
-            one = String(validator=validatish.Required())
-            two = String()
+            one = Attr(validator=required)
+            two = Attr()
 
         s1 = TestStructure()
         s2 = TestStructure()
         self.assertEquals(len(s1.attrs), 2)
         self.assertEquals(len(s2.attrs), 2)
 
-        s2.add('three', String())
+        s2.add('three', Attr())
         self.assertEquals(len(s1.attrs), 2)
         self.assertEquals(len(s2.attrs), 3)
 
     def test_meta_inheritance(self):
+        Structure = self._getTargetClass()
         class S1(Structure):
-            first = String()
+            first = Attr()
         class Mixin(object):
             pass
         class S2(Mixin, S1):
-            second = String()
+            second = Attr()
         class S3(S2):
-            third = String()
+            third = Attr()
         self.assertEquals(len(S1.attrs), 1)
         self.assertEquals([i[0] for i in S1.attrs], ['first'])
         self.assertEquals(len(S2.attrs), 2)
         self.assertEquals([i[0] for i in S2.attrs], ['first', 'second'])
         self.assertEquals(len(S3.attrs), 3)
-        self.assertEquals([i[0] for i in S3.attrs], ['first', 'second', 'third'])
+        self.assertEquals([i[0] for i in S3.attrs],
+                          ['first', 'second', 'third'])
 
+    def test__repr__(self):
+        attr = self._makeOne()
+        self.assertEqual(repr(attr), 'schemaish.Structure()')
+        
         
 class TestRecursiveValidate(unittest.TestCase):
 
     def test_validate_sequence(self):
-        s = Sequence(String(validator=validatish.Required()))
+        from schemaish import Sequence
+        from schemaish import String
+        from schemaish.attr import Invalid
+        s = Sequence(String(validator=required))
         try:
             s.validate( ["",""] )
         except Invalid, e:
@@ -261,13 +375,49 @@ class TestRecursiveValidate(unittest.TestCase):
         unittest.TestCase.fail('no exception raised')
             
     def test_validate_structure(self):
-        s = Structure([('list',Sequence(String(validator=validatish.Required())))])
+        from schemaish import Sequence
+        from schemaish import String
+        from schemaish import Structure
+        from schemaish.attr import Invalid
+        s = Structure([('list',Sequence(String(validator=required)))])
         try:
             s.validate( {'list':["",""]} )
         except Invalid, e:
             return
         unittest.TestCase.fail('no exception raised')
 
+class TestInvalid(unittest.TestCase):
+    def _getTargetClass(self):
+        from schemaish.attr import Invalid
+        return Invalid
+
+    def _makeOne(self, error_dict):
+        return self._getTargetClass()(error_dict)
+
+    def test___str__(self):
+        class Dummy:
+            message = '1'
+        error_dict = {'a':Dummy()}
+        d = self._makeOne(error_dict)
+        self.assertEqual(str(d), 'field "a" 1')
+        
+    def test___unicode__(self):
+        class Dummy:
+            message = '1'
+        error_dict = {'a':Dummy()}
+        d = self._makeOne(error_dict)
+        self.assertEqual(str(d), 'field "a" 1')
+
+def required(s):
+    if not s:
+        import validatish
+        raise validatish.Invalid(s)
+
+def Attr(*arg, **kw):
+    from schemaish.attr import Attribute
+    class DummyAttribute(Attribute):
+        type = 'Dummy'
+    return DummyAttribute(*arg, **kw)
 
 if __name__ == "__main__":
     unittest.main()
