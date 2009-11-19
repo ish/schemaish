@@ -21,7 +21,7 @@ The schema can now be used to validate a value..
 A Schemaish Structure
 ---------------------
 
-Just create a create a structure and add schema attributes to it!
+Just create a structure and add schema attributes to it!
 
 >>> schema = schemaish.Structure()
 >>> schema.add( 'myfield', schemaish.Integer() )
