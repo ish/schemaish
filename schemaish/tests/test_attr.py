@@ -15,6 +15,7 @@ class TestAttribute(unittest.TestCase):
         assert not attr.description
         assert not attr.description
         assert not attr.validator
+        self.assertEqual(attr.default, None)
         assert isinstance(attr.validator, validatish.Always)
 
     def test_subclass(self):
@@ -36,10 +37,13 @@ class TestAttribute(unittest.TestCase):
         attr = self._makeOne(title='title',
                              description='description',
                              validator=required)
-        expected = ("schemaish.Attribute(title='title', "
-                    "description='description', validator=<function required")
-        self.assertEqual(repr(attr)[:len(expected)], expected)
-        
+        begin_expected = (
+            "schemaish.Attribute(title='title', "
+            "description='description', validator=<function required")
+        r = repr(attr)
+        self.assertEqual(r[:len(begin_expected)], begin_expected)
+        end_expected = 'default=None)'
+        self.failUnless(r.endswith(end_expected))
 
 class TestString(unittest.TestCase):
     def _getTargetClass(self):

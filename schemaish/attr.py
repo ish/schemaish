@@ -65,7 +65,8 @@ class Attribute(object):
 
         @param title: Title of the attribute.
         @keyword description: Optional description.
-        @keyword validator: Optional FormEncode validator.
+        @keyword validator: Optional validatish validator.
+        @keyword default: Optional default value for the attribute (or None).
         """
         self._meta_order = _meta_order.next()
         title = k.pop('title', _MISSING)
@@ -77,6 +78,7 @@ class Attribute(object):
         validator = k.pop('validator', _MISSING)
         if validator is not _MISSING:
             self.validator = validator
+        self.default = k.pop('default', None)
 
     def validate(self, value):
         """
@@ -92,12 +94,14 @@ class Attribute(object):
     def __repr__(self):
         attributes = []
         if self.title:
-            attributes.append('title=%s'%repr(self.title))
+            attributes.append('title=%r' % self.title)
         if self.description:
-            attributes.append('description=%s'%repr(self.description))
+            attributes.append('description=%r' % self.description)
         if self.validator:
-            attributes.append('validator=%s'%repr(self.validator))
-        return 'schemaish.%s(%s)'%(self.__class__.__name__, ', '.join(attributes))
+            attributes.append('validator=%r'% self.validator)
+        attributes.append('default=%r' % self.default)
+        return 'schemaish.%s(%s)' % (self.__class__.__name__,
+                                     ', '.join(attributes))
 
 
 class String(Attribute):
