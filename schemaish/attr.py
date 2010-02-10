@@ -78,7 +78,8 @@ class Attribute(object):
         validator = k.pop('validator', _MISSING)
         if validator is not _MISSING:
             self.validator = validator
-        self.default = k.pop('default', None)
+        if k:
+            raise TypeError('unsupported keywords passed to schemaish.attr.Attribute or subclass')
 
     def validate(self, value):
         """
@@ -99,61 +100,70 @@ class Attribute(object):
             attributes.append('description=%r' % self.description)
         if self.validator:
             attributes.append('validator=%r'% self.validator)
-        attributes.append('default=%r' % self.default)
+        if hasattr(self, 'default'): 
+            attributes.append('default=%r' % self.default)
         return 'schemaish.%s(%s)' % (self.__class__.__name__,
                                      ', '.join(attributes))
 
 
-class String(Attribute):
+class LeafAttribute(Attribute):
+    
+    def __init__(self, **k):
+        self.default = k.pop('default', None)
+        super(LeafAttribute, self).__init__(**k)
+
+
+
+class String(LeafAttribute):
     """
     A Python unicode instance.
     """
     type = 'String'
 
 
-class Integer(Attribute):
+class Integer(LeafAttribute):
     """
     A Python integer.
     """
     type='Integer'
 
 
-class Float(Attribute):
+class Float(LeafAttribute):
     """
     A Python float.
     """
     type='Float'
 
 
-class Decimal(Attribute):
+class Decimal(LeafAttribute):
     """
     A decimal.Decimal instance.
     """
     type='Decimal'
 
 
-class Date(Attribute):
+class Date(LeafAttribute):
     """
     A datetime.date instance.
     """
     type='Date'
 
 
-class Time(Attribute):
+class Time(LeafAttribute):
     """
     A datetime.time instance.
     """
     type='Time'
 
 
-class DateTime(Attribute):
+class DateTime(LeafAttribute):
     """
     A datetime.datetime instance.
     """
     type='DateTime'
 
 
-class Boolean(Attribute):
+class Boolean(LeafAttribute):
     """
     A Python Boolean instance.
     """
@@ -161,6 +171,7 @@ class Boolean(Attribute):
 
 class Container(Attribute):
     type='Container'
+
 
 class Sequence(Container):
     """
@@ -180,6 +191,7 @@ class Sequence(Container):
         super(Sequence, self).__init__(**k)
         if attr is not None:
             self.attr = attr
+        self.defaults = k.pop('default', None)
 
     def validate(self, value):
         """
@@ -206,10 +218,14 @@ class Sequence(Container):
         if error_dict:
             raise Invalid(error_dict)
 
+    @property
+    def default(self):
+        return []
+
     def __repr__(self):
         return 'schemaish.Sequence(%r)'%self.attr
 
-class Tuple(Attribute):
+class Tuple(Container):
     """
     A Python tuple of attributes of specific types.
 
@@ -239,6 +255,10 @@ class Tuple(Attribute):
             self.attrs = [attr]
         else:
             self.attrs.append(attr)
+
+    @property
+    def default(self):
+        return tuple( [a.default for a in self.attrs] )
 
     def validate(self, value):
         """
@@ -338,6 +358,10 @@ class Structure(Container):
                 return attr
         raise KeyError(name)
 
+    @property
+    def default(self):
+        return dict( [(name, a.default) for name, a in self.attrs] )
+
     def validate(self, value):
         """
         Validate all items in the sequence and then validate the Sequence
@@ -368,7 +392,7 @@ class Structure(Container):
         return 'schemaish.Structure(%s)'%(', '.join(attrstrings))
 
 
-class File(Attribute):
+class File(LeafAttribute):
     """
     A File Object
     """

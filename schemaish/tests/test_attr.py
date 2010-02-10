@@ -2,8 +2,8 @@ import unittest
 
 class TestAttribute(unittest.TestCase):
     def _getTargetClass(self):
-        from schemaish.attr import Attribute
-        return Attribute
+        from schemaish.attr import LeafAttribute
+        return LeafAttribute
         
     def _makeOne(self, **kw):
         return self._getTargetClass()(**kw)
@@ -38,7 +38,7 @@ class TestAttribute(unittest.TestCase):
                              description='description',
                              validator=required)
         begin_expected = (
-            "schemaish.Attribute(title='title', "
+            "schemaish.LeafAttribute(title='title', "
             "description='description', validator=<function required")
         r = repr(attr)
         self.assertEqual(r[:len(begin_expected)], begin_expected)
@@ -422,6 +422,26 @@ def Attr(*arg, **kw):
     class DummyAttribute(Attribute):
         type = 'Dummy'
     return DummyAttribute(*arg, **kw)
+
+
+class TestDefaults(unittest.TestCase):
+
+    def test_defaults(self):
+        import schemaish
+        address = schemaish.Structure()
+        address.add('street', schemaish.String(default='Lidgett Lane'))
+        address.add('city', schemaish.String(default='Leeds'))
+        schema = schemaish.Structure()
+        schema.add('first_names', schemaish.String(default='Tim'))
+        schema.add('last_name', schemaish.String(default='Parkin'))
+        schema.add('code', schemaish.Tuple( [schemaish.String(default='legs'), schemaish.Integer(default=11)] ))
+        schema.add('address',address)
+        self.assertEqual(schema.default, {'address': {'city': 'Leeds', 'street': 'Lidgett Lane'},
+                                           'code': ('legs', 11),
+                                           'first_names': 'Tim',
+                                           'last_name': 'Parkin'})
+
+
 
 if __name__ == "__main__":
     unittest.main()

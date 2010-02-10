@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.5.4b'
+version = '0.5.5'
 
 setup(name='schemaish',
       version=version,
