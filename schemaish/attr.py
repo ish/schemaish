@@ -79,7 +79,7 @@ class Attribute(object):
         if validator is not _MISSING:
             self.validator = validator
         if k:
-            raise TypeError('unsupported keywords passed to schemaish.attr.Attribute or subclass')
+            raise TypeError('unsupported keywords passed to schemaish.attr.Attribute or subclass %r'%k.keys())
 
     def validate(self, value):
         """
