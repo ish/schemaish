@@ -42,8 +42,6 @@ class TestAttribute(unittest.TestCase):
             "description='description', validator=<function required")
         r = repr(attr)
         self.assertEqual(r[:len(begin_expected)], begin_expected)
-        end_expected = 'default=None)'
-        self.failUnless(r.endswith(end_expected))
 
 class TestString(unittest.TestCase):
     def _getTargetClass(self):
