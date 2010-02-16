@@ -78,8 +78,6 @@ class Attribute(object):
         validator = k.pop('validator', _MISSING)
         if validator is not _MISSING:
             self.validator = validator
-        if k:
-            raise TypeError('unsupported keywords passed to schemaish.attr.Attribute or subclass %r'%k.keys())
 
     def validate(self, value):
         """
@@ -100,7 +98,7 @@ class Attribute(object):
             attributes.append('description=%r' % self.description)
         if self.validator:
             attributes.append('validator=%r'% self.validator)
-        if hasattr(self, 'default'): 
+        if hasattr(self, 'default') and self.default: 
             attributes.append('default=%r' % self.default)
         return 'schemaish.%s(%s)' % (self.__class__.__name__,
                                      ', '.join(attributes))
@@ -258,7 +256,7 @@ class Tuple(Container):
 
     @property
     def default(self):
-        return tuple( [a.default for a in self.attrs] )
+        return tuple( [getattr(a,'default',None) for a in self.attrs] )
 
     def validate(self, value):
         """
@@ -360,7 +358,7 @@ class Structure(Container):
 
     @property
     def default(self):
-        return dict( [(name, a.default) for name, a in self.attrs] )
+        return dict( [(name, getattr(a,'default',None)) for name, a in self.attrs] )
 
     def validate(self, value):
         """
