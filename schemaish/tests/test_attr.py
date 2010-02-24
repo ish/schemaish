@@ -35,13 +35,16 @@ class TestAttribute(unittest.TestCase):
 
     def test__repr__(self):
         attr = self._makeOne(title='title',
+                             default=True,
                              description='description',
                              validator=required)
         begin_expected = (
             "schemaish.LeafAttribute(title='title', "
             "description='description', validator=<function required")
+        end_expected = 'default=True)'
         r = repr(attr)
         self.assertEqual(r[:len(begin_expected)], begin_expected)
+        self.assertEqual(r[-len(end_expected):], end_expected)
 
 class TestString(unittest.TestCase):
     def _getTargetClass(self):
@@ -83,9 +86,6 @@ class TestDate(unittest.TestCase):
     def _getTargetClass(self):
         from schemaish import Date
         return Date
-
-    def _makeOne(self, **kw):
-        return self._getTargetClass()(**kw)
 
     def test_validate(self):
         from schemaish import Invalid
@@ -154,13 +154,17 @@ class TestSequence(unittest.TestCase):
         s = self._makeOne(Attr(validator=fail))
         try:
             s.validate([''])
-            self.fail()
+            self.fail() # pragma: no cover
         except Invalid, e:
             self.assertTrue('0' in e.error_dict)
 
     def test__repr__(self):
         attr = self._makeOne()
         self.assertEqual(repr(attr), 'schemaish.Sequence(None)')
+
+    def test_default(self):
+        attr = self._makeOne()
+        self.assertEqual(attr.default, [])
 
 class TestTuple(unittest.TestCase):
 
@@ -370,11 +374,7 @@ class TestRecursiveValidate(unittest.TestCase):
         from schemaish import String
         from schemaish.attr import Invalid
         s = Sequence(String(validator=required))
-        try:
-            s.validate( ["",""] )
-        except Invalid, e:
-            return
-        unittest.TestCase.fail('no exception raised')
+        self.assertRaises(Invalid, s.validate, ["",""])
             
     def test_validate_structure(self):
         from schemaish import Sequence
@@ -382,11 +382,7 @@ class TestRecursiveValidate(unittest.TestCase):
         from schemaish import Structure
         from schemaish.attr import Invalid
         s = Structure([('list',Sequence(String(validator=required)))])
-        try:
-            s.validate( {'list':["",""]} )
-        except Invalid, e:
-            return
-        unittest.TestCase.fail('no exception raised')
+        self.assertRaises(Invalid, s.validate, {'list':["",""]})
 
 class TestInvalid(unittest.TestCase):
     def _getTargetClass(self):
@@ -438,9 +434,3 @@ class TestDefaults(unittest.TestCase):
                                            'code': ('legs', 11),
                                            'first_names': 'Tim',
                                            'last_name': 'Parkin'})
-
-
-
-if __name__ == "__main__":
-    unittest.main()
-
