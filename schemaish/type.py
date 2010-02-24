@@ -2,7 +2,6 @@
 basic class object for storing files
 """
 class File(object):
-
     def __init__(self, file, filename, mimetype, metadata=None):
         self.file = file
         self.filename = filename
@@ -12,8 +11,7 @@ class File(object):
         self.metadata = metadata
 
     def __repr__(self):
-        if hasattr(self, 'file'):
-            return '<schemaish.type.File file="%r" filename="%s", mimetype="%s", metadata="%r" >'%(self.file, self.filename, self.mimetype, getattr(self, 'metadata', {}))
-        else:
-            return '<schemaish.type.File filename="%s", mimetype="%s", metadata="%r" >'%(self.filename, self.mimetype, getattr(self, 'metadata', {}))
+        return ('<schemaish.type.File file="%r" filename="%s", '
+                'mimetype="%s", metadata="%r" >' % (
+                    self.file, self.filename, self.mimetype, self.metadata))
 
