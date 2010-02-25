@@ -2,3 +2,5 @@ build
 dist
 .coverage
 *.pyc
+*.egg-info
+*.egg
