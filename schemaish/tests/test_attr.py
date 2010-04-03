@@ -1,9 +1,10 @@
 import unittest
 
+
 class TestAttribute(unittest.TestCase):
     def _getTargetClass(self):
-        from schemaish.attr import LeafAttribute
-        return LeafAttribute
+        from schemaish.attr import Attribute
+        return Attribute
         
     def _makeOne(self, **kw):
         return self._getTargetClass()(**kw)
@@ -17,6 +18,10 @@ class TestAttribute(unittest.TestCase):
         assert not attr.validator
         self.assertEqual(attr.default, None)
         assert isinstance(attr.validator, validatish.Always)
+
+    def test_default(self):
+        attr = self._makeOne(default='foo')
+        self.assertEqual(attr.default, 'foo')
 
     def test_subclass(self):
         Attribute = self._getTargetClass()
@@ -33,13 +38,16 @@ class TestAttribute(unittest.TestCase):
         assert attr.description is None
         assert attr.validator is None
 
+    def test_args(self):
+        self.assertRaises(TypeError, self._makeOne, wibble=1)
+
     def test__repr__(self):
         attr = self._makeOne(title='title',
                              default=True,
                              description='description',
                              validator=required)
         begin_expected = (
-            "schemaish.LeafAttribute(title='title', "
+            "schemaish.Attribute(title='title', "
             "description='description', validator=<function required")
         end_expected = 'default=True)'
         r = repr(attr)
@@ -162,9 +170,6 @@ class TestSequence(unittest.TestCase):
         attr = self._makeOne()
         self.assertEqual(repr(attr), 'schemaish.Sequence(None)')
 
-    def test_default(self):
-        attr = self._makeOne()
-        self.assertEqual(attr.default, [])
 
 class TestTuple(unittest.TestCase):
 
@@ -417,20 +422,3 @@ def Attr(*arg, **kw):
         type = 'Dummy'
     return DummyAttribute(*arg, **kw)
 
-
-class TestDefaults(unittest.TestCase):
-
-    def test_defaults(self):
-        import schemaish
-        address = schemaish.Structure()
-        address.add('street', schemaish.String(default='Lidgett Lane'))
-        address.add('city', schemaish.String(default='Leeds'))
-        schema = schemaish.Structure()
-        schema.add('first_names', schemaish.String(default='Tim'))
-        schema.add('last_name', schemaish.String(default='Parkin'))
-        schema.add('code', schemaish.Tuple( [schemaish.String(default='legs'), schemaish.Integer(default=11)] ))
-        schema.add('address',address)
-        self.assertEqual(schema.default, {'address': {'city': 'Leeds', 'street': 'Lidgett Lane'},
-                                           'code': ('legs', 11),
-                                           'first_names': 'Tim',
-                                           'last_name': 'Parkin'})

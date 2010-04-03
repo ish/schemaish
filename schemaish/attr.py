@@ -58,6 +58,7 @@ class Attribute(object):
     title = None
     description = None
     validator = validatish.Always()
+    default = None
 
     def __init__(self, **k):
         """
@@ -78,6 +79,12 @@ class Attribute(object):
         validator = k.pop('validator', _MISSING)
         if validator is not _MISSING:
             self.validator = validator
+        default = k.pop('default', _MISSING)
+        if default is not _MISSING:
+            self.default = default
+        if k:
+            raise TypeError("__init__() got unexpected keyword arguments: %r"%list(k))
+
 
     def validate(self, value):
         """
@@ -98,74 +105,67 @@ class Attribute(object):
             attributes.append('description=%r' % self.description)
         if self.validator:
             attributes.append('validator=%r'% self.validator)
-        if hasattr(self, 'default') and self.default: 
+        if self.default:
             attributes.append('default=%r' % self.default)
         return 'schemaish.%s(%s)' % (self.__class__.__name__,
                                      ', '.join(attributes))
 
 
-class LeafAttribute(Attribute):
-    
-    def __init__(self, **k):
-        self.default = k.pop('default', None)
-        super(LeafAttribute, self).__init__(**k)
-
-
-
-class String(LeafAttribute):
+class String(Attribute):
     """
     A Python unicode instance.
     """
     type = 'String'
 
 
-class Integer(LeafAttribute):
+class Integer(Attribute):
     """
     A Python integer.
     """
     type='Integer'
 
 
-class Float(LeafAttribute):
+class Float(Attribute):
     """
     A Python float.
     """
     type='Float'
 
 
-class Decimal(LeafAttribute):
+class Decimal(Attribute):
     """
     A decimal.Decimal instance.
     """
     type='Decimal'
 
 
-class Date(LeafAttribute):
+class Date(Attribute):
     """
     A datetime.date instance.
     """
     type='Date'
 
 
-class Time(LeafAttribute):
+class Time(Attribute):
     """
     A datetime.time instance.
     """
     type='Time'
 
 
-class DateTime(LeafAttribute):
+class DateTime(Attribute):
     """
     A datetime.datetime instance.
     """
     type='DateTime'
 
 
-class Boolean(LeafAttribute):
+class Boolean(Attribute):
     """
     A Python Boolean instance.
     """
     type='Boolean'
+
 
 class Container(Attribute):
     type='Container'
@@ -189,7 +189,6 @@ class Sequence(Container):
         super(Sequence, self).__init__(**k)
         if attr is not None:
             self.attr = attr
-        self.defaults = k.pop('default', None)
 
     def validate(self, value):
         """
@@ -216,14 +215,11 @@ class Sequence(Container):
         if error_dict:
             raise Invalid(error_dict)
 
-    @property
-    def default(self):
-        return []
-
     def __repr__(self):
         return 'schemaish.Sequence(%r)'%self.attr
 
-class Tuple(Container):
+
+class Tuple(Attribute):
     """
     A Python tuple of attributes of specific types.
 
@@ -253,10 +249,6 @@ class Tuple(Container):
             self.attrs = [attr]
         else:
             self.attrs.append(attr)
-
-    @property
-    def default(self):
-        return tuple( [getattr(a,'default',None) for a in self.attrs] )
 
     def validate(self, value):
         """
@@ -356,10 +348,6 @@ class Structure(Container):
                 return attr
         raise KeyError(name)
 
-    @property
-    def default(self):
-        return dict( [(name, getattr(a,'default',None)) for name, a in self.attrs] )
-
     def validate(self, value):
         """
         Validate all items in the sequence and then validate the Sequence
@@ -390,7 +378,7 @@ class Structure(Container):
         return 'schemaish.Structure(%s)'%(', '.join(attrstrings))
 
 
-class File(LeafAttribute):
+class File(Attribute):
     """
     A File Object
     """
